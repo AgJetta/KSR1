@@ -20,11 +20,11 @@ public class Main {
             int i = 0;
             for (Document doc : documents) {
                 FeatureVector features = doc.getFeatures();
-//                if (features.getCurrency5().contains("yen")
-//
-//                ) {
-//                    continue;
-//                }
+                if (features.getPopularTopic4().isEmpty()
+
+                ) {
+                    continue;
+                }
                 System.out.println("Document ID: " + doc.getDocumentId());
                 System.out.println("Label: " + doc.getTargetLabel());
                 System.out.println("First Name: " + features.getFirstName0());

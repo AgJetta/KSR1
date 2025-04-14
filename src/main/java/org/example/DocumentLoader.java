@@ -146,34 +146,35 @@ public class DocumentLoader {
     }
 
     private String findMostCommonTopicMentioned(String bodyText, Element reuters) {
-//        try {
-            return "";}
-//            String[] dictionary = loadDictionaryOf("topics");
-//            reuters.select("TOPICS D").text().split()
-//
-//
-//            List<String> wordList = Arrays.asList(bodyText.split("\\s+"));
-//            wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
-//            Map<String, Integer> topicCount = new HashMap<>();
-//
-//            int count = 0;
-//            for (String topic : dictionary) {
-//                count = Collections.frequency(wordList, topic.toLowerCase());
-//                if (count > 0) {
-//                    topicCount.put(topic, count);
-//                }
-//            }
-//            // if max count is 1, return empty string
-//            // todo
-//            return topicCount.entrySet().stream()
-//                    .max(Map.Entry.comparingByValue())
-//                    .map(Map.Entry::getKey)
-//                    .orElse("");
-//        } catch (Exception e) {
-//            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
-//            return "";
-//        }
-//    }
+        try {
+            List<Element> topicElements = reuters.select("TOPICS D").stream().toList();
+            List<String> topics = new ArrayList<String>();
+            for (Element topic : topicElements) {
+                topics.add(topic.text());
+            }
+
+            List<String> wordList = Arrays.asList(bodyText.split("\\s+"));
+            wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
+            Map<String, Integer> topicCount = new HashMap<>();
+
+            int count = 0;
+            for (String topic : topics) {
+                count = Collections.frequency(wordList, topic.toLowerCase());
+                if (count > 0) {
+                    topicCount.put(topic, count);
+                }
+            }
+            // if max count is 1, return empty string
+            // todo
+            return topicCount.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("");
+        } catch (Exception e) {
+            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
+            return "";
+        }
+    }
     private String findMostCommonCountryMentioned(String bodyText) {
         try {
             String[] dictionary = loadDictionaryOf("places");
