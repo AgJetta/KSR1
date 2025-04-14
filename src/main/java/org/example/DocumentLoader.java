@@ -8,6 +8,8 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -290,19 +292,21 @@ public class DocumentLoader {
     /**
      * Simple day of week extraction
      */
-    private int extractDayOfWeek(String dateText) {
-        String lowerDate = dateText.toLowerCase();
+    private int extractDayOfWeek(String dateText){
+        SimpleDateFormat sdf = new SimpleDateFormat("d-MMM-yyyy HH:mm:ss.SS", Locale.ENGLISH);
+        sdf.setLenient(true); // Parsing errors otherwise
 
-        if (lowerDate.contains("monday")) return 1;
-        if (lowerDate.contains("tuesday")) return 2;
-        if (lowerDate.contains("wednesday")) return 3;
-        if (lowerDate.contains("thursday")) return 4;
-        if (lowerDate.contains("friday")) return 5;
-        if (lowerDate.contains("saturday")) return 6;
-        if (lowerDate.contains("sunday")) return 7;
+        try {
+            Date date = sdf.parse(dateText);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
 
-        // Default
-        return 0;
+            return calendar.get(Calendar.DAY_OF_WEEK);
+        }
+        catch (ParseException e) {
+            System.err.println("Error parsing date: " + e.getMessage());
+            return -1; // Return -1 or some error code
+        }
     }
 
     /**
