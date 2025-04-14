@@ -148,7 +148,7 @@ public class DocumentLoader {
     private String findMostCommonTopicMentioned(String bodyText, Element reuters) {
         try {
             List<Element> topicElements = reuters.select("TOPICS D").stream().toList();
-            List<String> topics = new ArrayList<String>();
+            List<String> topics = new ArrayList<>();
             for (Element topic : topicElements) {
                 topics.add(topic.text());
             }

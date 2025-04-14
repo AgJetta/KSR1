@@ -39,7 +39,7 @@ public class Main {
                 System.out.println("Word Count: " + features.getWordCount9());
 
                 System.out.println("=========================================");
-                i++;
+//                i++;
 //                if (i > 5) {
 //                    break;
 //                }
