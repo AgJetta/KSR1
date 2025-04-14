@@ -6,10 +6,12 @@ public class Document{
 
     private String documentId;
     private FeatureVector features;
+    private String targetLabel;
 
-    public Document(String documentId, FeatureVector features) {
+    public Document(String documentId, FeatureVector features, String targetLabel) {
         this.documentId = documentId;
         this.features = features;
+        this.targetLabel = targetLabel;
     }
 
     public String getDocumentId() {
@@ -18,5 +20,9 @@ public class Document{
 
     public FeatureVector getFeatures() {
         return features;
+    }
+
+    public String getTargetLabel() {
+        return targetLabel;
     }
 }

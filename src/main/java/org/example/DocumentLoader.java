@@ -70,7 +70,14 @@ public class DocumentLoader {
                 String docId = reuters.attr("NEWID");
 
                 FeatureVector features = extractFeatures(reuters);
-                org.example.Document doc = new org.example.Document(docId, features);
+                String targetLabel = extractLabel(reuters);
+                System.out.print("Document ID: " + docId + ", Label: " + targetLabel);
+                if (targetLabel.equals("INVALID") | targetLabel.equals("MANY OR NONE")) {
+                    System.out.println(" (Invalid label)");
+                    continue;
+                }
+                System.out.println(" (Valid label)");
+                org.example.Document doc = new org.example.Document(docId, features, targetLabel);
                 documents.add(doc);
             } catch (Exception e) {
                 System.err.println("Error processing document: " + e.getMessage());
@@ -101,8 +108,8 @@ public class DocumentLoader {
         List<String> organizations = extractValues(reuters.select("ORGS D"));
 
         // Extract countries
-        String popularCountry = extractFirstValue(reuters.select("PLACES D"));
-        String firstCountry = popularCountry; // Same for simplicity
+        String popularCountry = "TODO";
+        String firstCountry = popularCountry;
 
         // Extract topic
         String popularTopic = extractFirstValue(reuters.select("TOPICS D"));
@@ -134,6 +141,24 @@ public class DocumentLoader {
                 dayOfWeek,
                 wordCount
         );
+    }
+
+    /**
+     * Extract the target label from a Reuters element
+     * The label is the first value in the PLACES D element
+     * Return EMPTY STRING if the label is not in the list of valid labels
+     */
+    private String extractLabel(Element reuters) {
+        List<String> validPlaces = Arrays.asList("west-germany", "usa", "france", "uk", "canada", "japan");
+        Elements places = reuters.select("PLACES D");
+        if (places.isEmpty() | places.size() > 1) {
+            return "MANY OR NONE";
+        }
+        String place = places.first().text();
+        if (validPlaces.contains(place.toLowerCase())) {
+            return place;
+        }
+        return "INVALID";
     }
 
     /**

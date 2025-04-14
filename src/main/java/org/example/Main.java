@@ -1,20 +1,13 @@
 package org.example;
 
+import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.List;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
-
-//        if (args.length < 1) {
-//            System.out.println("Usage: java DocumentLoader <sgm_directory>");
-//            System.exit(1);
-//        }
-
         String docDir = "C:\\Users\\avish\\Downloads\\reuters+21578+text+categorization+collection\\reuters21578.tar\\reuters21578";
         DocumentLoader loader = new DocumentLoader();
         List<Document> documents = loader.loadDocuments(docDir);
@@ -26,6 +19,7 @@ public class Main {
             int i = 0;
             for (Document doc : documents) {
                 System.out.println("Document ID: " + doc.getDocumentId());
+                System.out.println("Label: " + doc.getTargetLabel());
                 System.out.println("First Name: " + doc.getFeatures().getFirstName0());
                 System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
                 System.out.println("Topic: " + doc.getFeatures().getPopularTopic4());
@@ -38,5 +32,25 @@ public class Main {
                 }
             }
         }
+        List<String> validPlaces = Arrays.asList("west-germany", "usa", "france", "uk", "canada", "japan");
+        Hashtable<String, Integer> counts = new Hashtable<>();
+        for (Document doc : documents) {
+            String label = doc.getTargetLabel();
+            if (validPlaces.contains(label)) {
+                counts.put(label, counts.getOrDefault(label, 0) + 1);
+            }
+            else {
+                counts.put(label + "(Invalid)", counts.getOrDefault("Invalid", 0) + 1);
+            }
+        }
+        System.out.println("Counts of labels:");
+        for (String label : counts.keySet()) {
+            System.out.println(label + ": " + counts.get(label));
+        }
+        Integer totalLabels = 0;
+        for (Integer count : counts.values()) {
+            totalLabels += count;
+        }
+        System.out.println("Total labels: " + totalLabels);
     }
 }
