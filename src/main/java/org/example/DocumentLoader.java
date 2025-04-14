@@ -323,4 +323,82 @@ public class DocumentLoader {
         }
     }
 
+    public static void main(String[] args) {
+        // DEV: .SGM FILES WITH THE DATA, REPLACE FOR YOUR PATH
+        String docDir = "C:\\Users\\avish\\Downloads\\reuters+21578+text+categorization+collection\\reuters21578.tar\\reuters21578";
+
+        List<org.example.Document> documents = new ArrayList<>();
+        DocumentLoader loader = new DocumentLoader();
+        try {
+            documents = loader.loadDocuments(docDir);
+        }
+        catch (Exception e) {
+            System.err.println("Error loading documents: " + e.getMessage());
+            System.err.println("CHECK IF THE DATA DIRECTORY IS CORRECT");
+        }
+
+        System.out.println("Loaded " + documents.size() + " documents in total.");
+        if (documents.isEmpty()) {
+            System.err.println("No documents found. CHECK DIRECTORY PATH OR FILES.  DocumentLoader.java -> main method");
+            return;
+        }
+
+        // Display some sample data
+        for (org.example.Document doc : documents) {
+            FeatureVector features = doc.getFeatures();
+            if (features.getPopularTopic4().isEmpty()
+
+            ) {
+                continue;
+            }
+            System.out.println("Document ID: " + doc.getDocumentId());
+            System.out.println("Label: " + doc.getTargetLabel());
+            System.out.println("First Name: " + features.getFirstName0());
+            System.out.println("Organizations: " + features.getOrganisations1());
+            System.out.println("Popular Country: " + features.getPopularCountry2());
+            System.out.println("First Country: " + features.getFirstCountry3());
+            System.out.println("Topic: " + features.getPopularTopic4());
+            System.out.println("Currency: " + features.getCurrency5());
+            System.out.println("Author: " + features.getAuthor6());
+            System.out.println("Localisation: " + features.getLocalisation7());
+            System.out.println("Day of Week: " + features.getDayOfWeek8());
+            System.out.println("Word Count: " + features.getWordCount9());
+
+            System.out.println("=========================================");
+        }
+        List<String> validPlaces = Arrays.asList("west-germany", "usa", "france", "uk", "canada", "japan");
+        Hashtable<String, Integer> counts = new Hashtable<>();
+        for (org.example.Document doc : documents) {
+            String label = doc.getTargetLabel();
+            if (validPlaces.contains(label)) {
+                counts.put(label, counts.getOrDefault(label, 0) + 1);
+            }
+            else {
+                counts.put(label + "(Invalid)", counts.getOrDefault("Invalid", 0) + 1);
+            }
+        }
+        System.out.println("Counts of labels:");
+        for (String label : counts.keySet()) {
+            System.out.println(label + ": " + counts.get(label));
+        }
+        Integer totalLabels = 0;
+        for (Integer count : counts.values()) {
+            totalLabels += count;
+        }
+        System.out.println("Total labels: " + totalLabels);
+
+        // Set of currencies that appear
+        List<String> currencies = new ArrayList<>();
+        for (org.example.Document doc : documents) {
+            FeatureVector features = doc.getFeatures();
+            List<String> currencyList = features.getCurrency5();
+            for (String currency : currencyList) {
+                if (!currencies.contains(currency)) {
+                    currencies.add(currency);
+                }
+            }
+        }
+        System.out.println("Currencies: " + currencies);
+
+    }
 }
