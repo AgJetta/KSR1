@@ -107,7 +107,7 @@ public class DocumentLoader {
         String firstName = findFirstOccurrenceInBody(textBody, "people");
 
         // Extract organizations
-        List<String> organizations = extractValues(reuters.select("ORGS D"));
+        List<String> organizations = findOrganizations(textBody);
 
         // Extract countries
         String popularCountry = "TODO";
@@ -143,6 +143,21 @@ public class DocumentLoader {
                 dayOfWeek,
                 wordCount
         );
+    }
+
+    private List<String> findOrganizations(String bodyText) {
+        try {
+            String[] dictionary = loadDictionaryOf("orgs");
+
+            return Arrays.stream(bodyText.split("\\s+"))
+                    .filter(word -> Arrays.asList(dictionary).contains(word.toLowerCase()))
+                    .collect(Collectors.toSet()).stream().toList();
+        } catch (Exception e) {
+            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
+        }
+
+        // Return empty list if no match is found
+        return Collections.emptyList();
     }
 
     private String findFirstOccurrenceInBody(String bodyText, String category) {

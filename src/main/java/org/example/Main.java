@@ -18,13 +18,13 @@ public class Main {
         if (!documents.isEmpty()) {
             int i = 0;
             for (Document doc : documents) {
-                if (doc.getFeatures().getFirstName0() == null) {
+                if (doc.getFeatures().getFirstName0() == null | doc.getFeatures().getOrganisations1().isEmpty()) {
                     continue;
                 }
                 System.out.println("Document ID: " + doc.getDocumentId());
-//                System.out.println("Label: " + doc.getTargetLabel());
+                System.out.println("Label: " + doc.getTargetLabel());
                 System.out.println("First Name: " + doc.getFeatures().getFirstName0());
-//                System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
+                System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
 //                System.out.println("Topic: " + doc.getFeatures().getPopularTopic4());
 //                System.out.println("Word Count: " + doc.getFeatures().getWordCount9());
 //                System.out.println("FeatureVector: " + doc.getFeatures().toString());
