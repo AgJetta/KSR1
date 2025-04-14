@@ -18,18 +18,21 @@ public class Main {
         if (!documents.isEmpty()) {
             int i = 0;
             for (Document doc : documents) {
+                if (doc.getFeatures().getFirstName0() == null) {
+                    continue;
+                }
                 System.out.println("Document ID: " + doc.getDocumentId());
-                System.out.println("Label: " + doc.getTargetLabel());
+//                System.out.println("Label: " + doc.getTargetLabel());
                 System.out.println("First Name: " + doc.getFeatures().getFirstName0());
-                System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
-                System.out.println("Topic: " + doc.getFeatures().getPopularTopic4());
-                System.out.println("Word Count: " + doc.getFeatures().getWordCount9());
-                System.out.println("FeatureVector: " + doc.getFeatures().toString());
+//                System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
+//                System.out.println("Topic: " + doc.getFeatures().getPopularTopic4());
+//                System.out.println("Word Count: " + doc.getFeatures().getWordCount9());
+//                System.out.println("FeatureVector: " + doc.getFeatures().toString());
                 System.out.println("=========================================");
                 i++;
-                if (i > 5) {
-                    break;
-                }
+//                if (i > 5) {
+//                    break;
+//                }
             }
         }
         List<String> validPlaces = Arrays.asList("west-germany", "usa", "france", "uk", "canada", "japan");

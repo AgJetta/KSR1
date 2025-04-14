@@ -6,13 +6,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DocumentLoader {
 
@@ -101,8 +101,10 @@ public class DocumentLoader {
      * Extract features from a Reuters element
      */
     private FeatureVector extractFeatures(Element reuters) {
+        String textBody = reuters.select("BODY").text();
+
         // Extract first person name (if any)
-        String firstName = extractFirstValue(reuters.select("PEOPLE D"));
+        String firstName = findFirstOccurrenceInBody(textBody, "people");
 
         // Extract organizations
         List<String> organizations = extractValues(reuters.select("ORGS D"));
@@ -141,6 +143,27 @@ public class DocumentLoader {
                 dayOfWeek,
                 wordCount
         );
+    }
+
+    private String findFirstOccurrenceInBody(String bodyText, String category) {
+        try {
+            // Load the list of strings for comparison
+            String[] dictionary = loadDictionaryOf(category);
+
+            // Find the first occurrence
+            for (String word : bodyText.split("\\s+")) {
+                for (String dictWord : dictionary) {
+                    if (word.equalsIgnoreCase(dictWord)) {
+                        return word;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
+        }
+
+        // Return null if no match is found
+        return null;
     }
 
     /**
@@ -248,6 +271,18 @@ public class DocumentLoader {
             return 0;
         }
         return text.split("\\s+").length;
+    }
+
+    public String[] loadDictionaryOf(String category) throws Exception {
+        InputStream input = getClass().getClassLoader().getResourceAsStream(category + ".txt");
+        if (input == null) {
+            throw new IllegalArgumentException("File not found");
+        }
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+            List<String> lines = reader.lines().toList();
+            return lines.toArray(new String[0]);
+        }
     }
 
 }
