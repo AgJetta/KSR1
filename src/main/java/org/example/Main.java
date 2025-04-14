@@ -31,9 +31,13 @@ public class Main {
                 System.out.println("Organizations: " + features.getOrganisations1());
                 System.out.println("Popular Country: " + features.getPopularCountry2());
                 System.out.println("First Country: " + features.getFirstCountry3());
-//                System.out.println("Topic: " + features.getPopularTopic4());
-//                System.out.println("Word Count: " + features.getWordCount9());
-//                System.out.println("FeatureVector: " + features.toString());
+                System.out.println("Topic: " + features.getPopularTopic4());
+                System.out.println("Currency: " + features.getCurrency5());
+                System.out.println("Author: " + features.getAuthor6());
+                System.out.println("Localisation: " + features.getLocalisation7());
+                System.out.println("Day of Week: " + features.getDayOfWeek8());
+                System.out.println("Word Count: " + features.getWordCount9());
+
                 System.out.println("=========================================");
                 i++;
 //                if (i > 5) {

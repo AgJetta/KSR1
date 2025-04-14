@@ -123,7 +123,7 @@ public class DocumentLoader {
         String author = reuters.select("AUTHOR").text();
 
         // Extract dateline
-        String dateline = reuters.select("DATELINE").text();
+        String dateline = reuters.select("DATELINE").text().split("\\s+")[0].replace(",", "");
 
         // Get day of week (simplified)
         int dayOfWeek = extractDayOfWeek(reuters.select("DATE").text());
