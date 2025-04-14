@@ -8,10 +8,7 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DocumentLoader {
@@ -110,8 +107,11 @@ public class DocumentLoader {
         List<String> organizations = findOrganizations(textBody);
 
         // Extract countries
-        String popularCountry = "TODO";
-        String firstCountry = popularCountry;
+        String firstCountry = findFirstOccurrenceInBody(textBody, "places");
+        String popularCountry = findMostCommonCountryMentioned(textBody);
+        if (popularCountry.isEmpty()) {
+            popularCountry = firstCountry;
+        }
 
         // Extract topic
         String popularTopic = extractFirstValue(reuters.select("TOPICS D"));
@@ -160,13 +160,40 @@ public class DocumentLoader {
         return Collections.emptyList();
     }
 
+    private String findMostCommonCountryMentioned(String bodyText) {
+        try {
+            String[] dictionary = loadDictionaryOf("places");
+            List<String> wordList = Arrays.asList(bodyText.split("\\s+"));
+            wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
+            Map<String, Integer> countryCount = new HashMap<>();
+
+            int count = 0;
+            for (String place : dictionary) {
+                count = Collections.frequency(wordList, place.toLowerCase());
+                if (count > 0) {
+                    countryCount.put(place, count);
+                }
+            }
+            // if max count is 1, return empty string
+            // todo
+            return countryCount.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("");
+        } catch (Exception e) {
+            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
+            return "";
+        }
+    }
+
     private String findFirstOccurrenceInBody(String bodyText, String category) {
         try {
             // Load the list of strings for comparison
             String[] dictionary = loadDictionaryOf(category);
-
+            List<String> wordList = Arrays.asList(bodyText.split("\\s+"));
+            wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
             // Find the first occurrence
-            for (String word : bodyText.split("\\s+")) {
+            for (String word : wordList) {
                 for (String dictWord : dictionary) {
                     if (word.equalsIgnoreCase(dictWord)) {
                         return word;
@@ -178,7 +205,7 @@ public class DocumentLoader {
         }
 
         // Return null if no match is found
-        return null;
+        return "";
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -18,16 +19,21 @@ public class Main {
         if (!documents.isEmpty()) {
             int i = 0;
             for (Document doc : documents) {
-                if (doc.getFeatures().getFirstName0() == null | doc.getFeatures().getOrganisations1().isEmpty()) {
+                FeatureVector features = doc.getFeatures();
+                if (features.getPopularCountry2().isEmpty()
+
+                ) {
                     continue;
                 }
                 System.out.println("Document ID: " + doc.getDocumentId());
                 System.out.println("Label: " + doc.getTargetLabel());
-                System.out.println("First Name: " + doc.getFeatures().getFirstName0());
-                System.out.println("Organizations: " + doc.getFeatures().getOrganisations1());
-//                System.out.println("Topic: " + doc.getFeatures().getPopularTopic4());
-//                System.out.println("Word Count: " + doc.getFeatures().getWordCount9());
-//                System.out.println("FeatureVector: " + doc.getFeatures().toString());
+                System.out.println("First Name: " + features.getFirstName0());
+                System.out.println("Organizations: " + features.getOrganisations1());
+                System.out.println("Popular Country: " + features.getPopularCountry2());
+                System.out.println("First Country: " + features.getFirstCountry3());
+//                System.out.println("Topic: " + features.getPopularTopic4());
+//                System.out.println("Word Count: " + features.getWordCount9());
+//                System.out.println("FeatureVector: " + features.toString());
                 System.out.println("=========================================");
                 i++;
 //                if (i > 5) {
@@ -55,5 +61,6 @@ public class Main {
             totalLabels += count;
         }
         System.out.println("Total labels: " + totalLabels);
+
     }
 }
