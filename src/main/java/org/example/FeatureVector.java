@@ -79,4 +79,20 @@ public class FeatureVector {
     public int getWordCount9() {
         return wordCount9;
     }
+
+    @Override
+    public String toString() {
+        return "FeatureVector{" +
+                "firstName0='" + firstName0 + '\'' +
+                ", organisations1=" + organisations1 +
+                ", popularCountry2='" + popularCountry2 + '\'' +
+                ", firstCountry3='" + firstCountry3 + '\'' +
+                ", popularTopic4='" + popularTopic4 + '\'' +
+                ", currency5=" + currency5 +
+                ", author6='" + author6 + '\'' +
+                ", localisation7='" + localisation7 + '\'' +
+                ", dayOfWeek8=" + dayOfWeek8 +
+                ", wordCount9=" + wordCount9 +
+                '}';
+    }
 }
