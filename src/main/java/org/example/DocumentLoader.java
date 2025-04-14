@@ -102,36 +102,19 @@ public class DocumentLoader {
     private FeatureVector extractFeatures(Element reuters) {
         String textBody = reuters.select("BODY").text();
 
-        // Extract first person name (if any)
         String firstName = findFirstOccurrenceInBody(textBody, "people");
-
-        // Extract organizations
         List<String> organizations = findOrganizations(textBody);
-
-        // Extract countries
         String firstCountry = findFirstOccurrenceInBody(textBody, "places");
         String popularCountry = findMostCommonCountryMentioned(textBody);
         if (popularCountry.isEmpty()) {
             popularCountry = firstCountry;
         }
-
-        // Extract topic
-        String popularTopic = extractFirstValue(reuters.select("TOPICS D"));
-
-        // Extract currencies from text
+        String popularTopic = findMostCommonTopicMentioned(textBody, reuters);
         List<String> currencies = extractCurrencies(getText(reuters));
-
-        // Extract author
         String author = reuters.select("AUTHOR").text();
-
-        // Extract dateline
         String dateline = reuters.select("DATELINE").text().split("\\s+")[0].replace(",", "");
-
-        // Get day of week (simplified)
         int dayOfWeek = extractDayOfWeek(reuters.select("DATE").text());
-
-        // Count words in the body
-        int wordCount = countWords(getText(reuters));
+        int wordCount = countWords(textBody);
 
         return new FeatureVector(
                 firstName,
@@ -162,6 +145,35 @@ public class DocumentLoader {
         return Collections.emptyList();
     }
 
+    private String findMostCommonTopicMentioned(String bodyText, Element reuters) {
+//        try {
+            return "";}
+//            String[] dictionary = loadDictionaryOf("topics");
+//            reuters.select("TOPICS D").text().split()
+//
+//
+//            List<String> wordList = Arrays.asList(bodyText.split("\\s+"));
+//            wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
+//            Map<String, Integer> topicCount = new HashMap<>();
+//
+//            int count = 0;
+//            for (String topic : dictionary) {
+//                count = Collections.frequency(wordList, topic.toLowerCase());
+//                if (count > 0) {
+//                    topicCount.put(topic, count);
+//                }
+//            }
+//            // if max count is 1, return empty string
+//            // todo
+//            return topicCount.entrySet().stream()
+//                    .max(Map.Entry.comparingByValue())
+//                    .map(Map.Entry::getKey)
+//                    .orElse("");
+//        } catch (Exception e) {
+//            System.err.println("Error loading dictionary or processing body: " + e.getMessage());
+//            return "";
+//        }
+//    }
     private String findMostCommonCountryMentioned(String bodyText) {
         try {
             String[] dictionary = loadDictionaryOf("places");
@@ -271,22 +283,29 @@ public class DocumentLoader {
      * Simple currency extraction using keywords
      */
     private List<String> extractCurrencies(String text) {
-        if (text == null || text.isEmpty()) {
+        try {
+            if (text == null || text.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            List<String> currencies = new ArrayList<>();
+            String lowerText = text.toLowerCase();
+
+
+            String[] currencyDictionary = loadDictionaryOf("currencies");
+
+            for (String currency : currencyDictionary) {
+                if (lowerText.contains(currency)) {
+                    currencies.add(currency);
+                }
+            }
+
+            return currencies;
+        }
+        catch (Exception e) {
+            System.err.println("Error loading currency dictionary: " + e.getMessage());
             return Collections.emptyList();
         }
-
-        List<String> currencies = new ArrayList<>();
-        String lowerText = text.toLowerCase();
-
-        String[] currencyKeywords = {"dollar", "pound", "yen", "mark", "franc", "lira", "peso", "euro"};
-
-        for (String currency : currencyKeywords) {
-            if (lowerText.contains(currency)) {
-                currencies.add(currency);
-            }
-        }
-
-        return currencies;
     }
 
     /**

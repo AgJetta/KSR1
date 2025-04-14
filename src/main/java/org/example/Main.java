@@ -20,11 +20,11 @@ public class Main {
             int i = 0;
             for (Document doc : documents) {
                 FeatureVector features = doc.getFeatures();
-                if (features.getPopularCountry2().isEmpty()
-
-                ) {
-                    continue;
-                }
+//                if (features.getCurrency5().contains("yen")
+//
+//                ) {
+//                    continue;
+//                }
                 System.out.println("Document ID: " + doc.getDocumentId());
                 System.out.println("Label: " + doc.getTargetLabel());
                 System.out.println("First Name: " + features.getFirstName0());
@@ -65,6 +65,19 @@ public class Main {
             totalLabels += count;
         }
         System.out.println("Total labels: " + totalLabels);
+
+        // Set of currencies that appear
+        List<String> currencies = new ArrayList<>();
+        for (Document doc : documents) {
+            FeatureVector features = doc.getFeatures();
+            List<String> currencyList = features.getCurrency5();
+            for (String currency : currencyList) {
+                if (!currencies.contains(currency)) {
+                    currencies.add(currency);
+                }
+            }
+        }
+        System.out.println("Currencies: " + currencies);
 
     }
 }
