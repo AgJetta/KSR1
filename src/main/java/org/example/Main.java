@@ -17,7 +17,7 @@ public class Main {
 
         // Display some sample data
         if (!documents.isEmpty()) {
-            int i = 0;
+//            int i = 0;
             for (Document doc : documents) {
                 FeatureVector features = doc.getFeatures();
                 if (features.getPopularTopic4().isEmpty()

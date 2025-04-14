@@ -157,9 +157,9 @@ public class DocumentLoader {
             wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
             Map<String, Integer> topicCount = new HashMap<>();
 
-            int count = 0;
+//            int count = 0;
             for (String topic : topics) {
-                count = Collections.frequency(wordList, topic.toLowerCase());
+                int count = Collections.frequency(wordList, topic.toLowerCase());
                 if (count > 0) {
                     topicCount.put(topic, count);
                 }
@@ -182,9 +182,9 @@ public class DocumentLoader {
             wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
             Map<String, Integer> countryCount = new HashMap<>();
 
-            int count = 0;
+//            int count = 0;
             for (String place : dictionary) {
-                count = Collections.frequency(wordList, place.toLowerCase());
+                int count = Collections.frequency(wordList, place.toLowerCase());
                 if (count > 0) {
                     countryCount.put(place, count);
                 }
@@ -239,34 +239,6 @@ public class DocumentLoader {
             return place;
         }
         return "INVALID";
-    }
-
-    /**
-     * Extract the first value from a list of elements
-     */
-    private String extractFirstValue(Elements elements) {
-        if (elements == null || elements.isEmpty()) {
-            return "";
-        }
-        return elements.first().text().trim();
-    }
-
-    /**
-     * Extract all values from a list of elements
-     */
-    private List<String> extractValues(Elements elements) {
-        if (elements == null || elements.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> values = new ArrayList<>();
-        for (Element element : elements) {
-            String value = element.text().trim();
-            if (!value.isEmpty()) {
-                values.add(value);
-            }
-        }
-        return values;
     }
 
     /**
