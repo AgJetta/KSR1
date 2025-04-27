@@ -5,17 +5,14 @@ import java.util.List;
 public class ChebyshevDistance implements DistanceMetric {
 
     @Override
-    public double calculate(Document doc1, Document doc2) {
-        List<Integer> vec1 = doc1.getFeatures().getNumericFeatures();
-        List<Integer> vec2 = doc2.getFeatures().getNumericFeatures();
-
-        double maxDiff = 0;
-        for (int i = 0; i < vec1.size(); i++) {
-            double diff = Math.abs(vec1.get(i) - vec2.get(i));
-            if (diff > maxDiff) {
-                maxDiff = diff;
+    public double aggregate(List<Double> distances) {
+        double max = 0.0;
+        for (double d : distances) {
+            double abs = Math.abs(d);
+            if (abs > max) {
+                max = abs;
             }
         }
-        return maxDiff;
+        return max;
     }
 }
