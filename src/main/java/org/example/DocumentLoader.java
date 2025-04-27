@@ -325,7 +325,12 @@ public class DocumentLoader {
 
     public static void main(String[] args) {
         // DEV: .SGM FILES WITH THE DATA, REPLACE FOR YOUR PATH
-        String docDir = "C:\\Users\\avish\\Downloads\\reuters+21578+text+categorization+collection\\reuters21578.tar\\reuters21578";
+        String docDir;
+        if (args.length > 0) {
+            docDir = args[0];
+        } else {
+            docDir = "C:\\Users\\avish\\Downloads\\reuters+21578+text+categorization+collection\\reuters21578.tar\\reuters21578";
+        }
 
         List<org.example.Document> documents = new ArrayList<>();
         DocumentLoader loader = new DocumentLoader();
@@ -346,9 +351,7 @@ public class DocumentLoader {
         // Display some sample data
         for (org.example.Document doc : documents) {
             FeatureVector features = doc.getFeatures();
-            if (features.getPopularTopic4().isEmpty()
-
-            ) {
+            if (features.getPopularTopic4().isEmpty()) {
                 continue;
             }
             System.out.println("Document ID: " + doc.getDocumentId());
