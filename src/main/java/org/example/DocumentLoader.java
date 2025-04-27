@@ -356,7 +356,7 @@ public class DocumentLoader {
             System.out.println("First Name: " + features.getFirstName0());
             System.out.println("Organizations: " + features.getOrganisations1());
             System.out.println("Popular Country: " + features.getPopularCountry2());
-            System.out.println("First Country: " + features.getFirstCountry3());
+            System.out.println("First Country: " + features.getFirstCity3());
             System.out.println("Topic: " + features.getPopularTopic4());
             System.out.println("Currency: " + features.getCurrency5());
             System.out.println("Author: " + features.getAuthor6());

@@ -7,7 +7,7 @@ public class FeatureVector {
     private String firstName0;
     private List<String> organisations1;
     private String popularCountry2;
-    private String firstCountry3;
+    private String firstCity3;
     private String popularTopic4;
     private List<String> currency5;
     private String author6;
@@ -15,11 +15,11 @@ public class FeatureVector {
     private int dayOfWeek8;
     private int wordCount9;
 
-    public FeatureVector(String firstName0, List<String> organisations1, String popularCountry2, String firstCountry3, String popularTopic4, List<String> currency5, String author6, String localisation7, int dayOfWeek8, int wordCount9) {
+    public FeatureVector(String firstName0, List<String> organisations1, String popularCountry2, String firstCity3, String popularTopic4, List<String> currency5, String author6, String localisation7, int dayOfWeek8, int wordCount9) {
         this.firstName0 = firstName0;
         this.organisations1 = organisations1;
         this.popularCountry2 = popularCountry2;
-        this.firstCountry3 = firstCountry3;
+        this.firstCity3 = firstCity3;
         this.popularTopic4 = popularTopic4;
         this.currency5 = currency5;
         this.author6 = author6;
@@ -33,7 +33,7 @@ public class FeatureVector {
     }
 
     public List<String> getCategoricalFeatures() {
-        return List.of(firstName0, popularCountry2, firstCountry3, popularTopic4, author6, localisation7);
+        return List.of(firstName0, popularCountry2, firstCity3, popularTopic4, author6, localisation7);
     }
 
     public List<List<String>> getMultiCategoricalFeatures() {
@@ -52,8 +52,8 @@ public class FeatureVector {
         return popularCountry2;
     }
 
-    public String getFirstCountry3() {
-        return firstCountry3;
+    public String getFirstCity3() {
+        return firstCity3;
     }
 
     public String getPopularTopic4() {
@@ -86,7 +86,7 @@ public class FeatureVector {
                 "firstName0='" + firstName0 + '\'' +
                 ", organisations1=" + organisations1 +
                 ", popularCountry2='" + popularCountry2 + '\'' +
-                ", firstCountry3='" + firstCountry3 + '\'' +
+                ", firstCity3='" + firstCity3 + '\'' +
                 ", popularTopic4='" + popularTopic4 + '\'' +
                 ", currency5=" + currency5 +
                 ", author6='" + author6 + '\'' +
