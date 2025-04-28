@@ -5,58 +5,31 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Main {
-    // Sample dataset for demonstration
-    private static List<Document> createSampleDataset(int size) {
-        List<Document> documents = new ArrayList<>();
-        Random random = new Random(42);  // Fixed seed for deterministic results
-
-        String[] categories = {"politics", "sports", "technology", "entertainment"};
-        String[] firstNames = {"John", "Jane", "Michael", "Sarah", "David", "Emma"};
-        String[][] organisations = {
-                {"Apple", "Google", "Microsoft"},
-                {"CNN", "BBC", "FOX"},
-                {"NBA", "NFL", "FIFA"}
-        };
-        String[] countries = {"USA", "UK", "Germany", "France", "China", "Japan"};
-        String[] cities = {"New York", "London", "Berlin", "Paris", "Beijing", "Tokyo"};
-        String[] topics = {"AI", "Climate", "Economy", "Healthcare", "Education"};
-        String[][] currencies = {
-                {"USD", "EUR", "GBP"},
-                {"JPY", "CNY", "RUB"},
-                {"BTC", "ETH", "XRP"}
-        };
-        String[] authors = {"Smith", "Johnson", "Brown", "Wilson", "Taylor"};
-        String[] localisations = {"North", "South", "East", "West", "Central"};
-
-        for (int i = 0; i < size; i++) {
-            String id = "doc_" + i;
-            String category = categories[random.nextInt(categories.length)];
-
-            // Create feature vector
-            String firstName = firstNames[random.nextInt(firstNames.length)];
-            List<String> orgs = Arrays.asList(organisations[random.nextInt(organisations.length)]);
-            String country = countries[random.nextInt(countries.length)];
-            String city = cities[random.nextInt(cities.length)];
-            String topic = topics[random.nextInt(topics.length)];
-            List<String> currency = Arrays.asList(currencies[random.nextInt(currencies.length)]);
-            String author = authors[random.nextInt(authors.length)];
-            String localisation = localisations[random.nextInt(localisations.length)];
-            int dayOfWeek = random.nextInt(7) + 1;
-            int wordCount = random.nextInt(1000) + 100;
-
-            FeatureVector featureVector = new FeatureVector(
-                    firstName, orgs, country, city, topic, currency, author, localisation, dayOfWeek, wordCount
-            );
-
-            documents.add(new Document(id, featureVector, category));
-        }
-
-        return documents;
-    }
 
     public static void main(String[] args) {
-        // Create a sample dataset
-        List<Document> documents = createSampleDataset(1000);
+        // DEV: .SGM FILES WITH THE DATA, REPLACE FOR YOUR PATH
+        String docDir;
+        if (args.length > 0) {
+            docDir = args[0];
+        } else {
+            throw new IllegalArgumentException("Please provide the path to the directory containing .sgm files.");
+        }
+
+        List<org.example.Document> documents = new ArrayList<>();
+        DocumentLoader loader = new DocumentLoader();
+        try {
+            documents = loader.loadDocuments(docDir);
+        }
+        catch (Exception e) {
+            System.err.println("Error loading documents: " + e.getMessage());
+            System.err.println("CHECK IF THE DATA DIRECTORY IS CORRECT");
+        }
+
+        System.out.println("Loaded " + documents.size() + " documents in total.");
+        if (documents.isEmpty()) {
+            System.err.println("No documents found. CHECK DIRECTORY PATH OR FILES.  DocumentLoader.java -> main method");
+            return;
+        }
 
         // Initialize metrics and similarity measures
         DistanceMetric euclidean = new EuclideanDistance();
@@ -67,9 +40,9 @@ public class Main {
 
         // 1. Compare classification results for different k values
         System.out.println("\n==== Experiment 1: Impact of k value ====");
-        Set<Integer> allFeatures = IntStream.range(0, 10).boxed().collect(Collectors.toSet());
-        for (int k : new int[]{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}) {
-            KNN classifier = new KNN(k, 0.7, allFeatures, euclidean, cosine);
+        Set<Integer> someFeatures = IntStream.range(0, 3).boxed().collect(Collectors.toSet());
+        for (int k : new int[]{1, 2, 3, 4}) {
+            KNN classifier = new KNN(k, 0.6, someFeatures, euclidean, cosine);
             classifier.splitDataset(documents);
             classifier.evaluateModel();
 
@@ -80,8 +53,8 @@ public class Main {
         // 2. Compare classification results for different train/test ratios
         System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
         int bestK = 5;  // Use the best k from the previous experiment
-        for (double ratio : new double[]{0.5, 0.6, 0.7, 0.8, 0.9}) {
-            KNN classifier = new KNN(bestK, ratio, allFeatures, euclidean, cosine);
+        for (double ratio : new double[]{0.3, 0.5, 0.7, 0.8, 0.9}) {
+            KNN classifier = new KNN(bestK, ratio, someFeatures, euclidean, cosine);
             classifier.splitDataset(documents);
             classifier.evaluateModel();
 
@@ -97,7 +70,7 @@ public class Main {
         metrics.put("Chebyshev", chebyshev);
 
         for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
-            KNN classifier = new KNN(bestK, 0.7, allFeatures, entry.getValue(), cosine);
+            KNN classifier = new KNN(bestK, 0.7, someFeatures, entry.getValue(), cosine);
             classifier.splitDataset(documents);
             classifier.evaluateModel();
 
@@ -112,7 +85,7 @@ public class Main {
         similarities.put("Jaccard", jaccard);
 
         for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
-            KNN classifier = new KNN(bestK, 0.7, allFeatures, euclidean, entry.getValue());
+            KNN classifier = new KNN(bestK, 0.7, someFeatures, euclidean, entry.getValue());
             classifier.splitDataset(documents);
             classifier.evaluateModel();
 
@@ -149,7 +122,7 @@ public class Main {
 
         // 5. Show per-class metrics for the best configuration
         System.out.println("\n==== Detailed metrics for best configuration ====");
-        KNN bestClassifier = new KNN(bestK, 0.7, allFeatures, euclidean, cosine);
+        KNN bestClassifier = new KNN(bestK, 0.7, someFeatures, euclidean, cosine);
         bestClassifier.splitDataset(documents);
         bestClassifier.evaluateModel();
 
