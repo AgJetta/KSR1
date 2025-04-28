@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class JaccardTextMetric implements TextMetric {
+public class JaccardTextMeasure implements TextMeasure {
 
     @Override
     public double calculate(List<String> list1, List<String> list2) {

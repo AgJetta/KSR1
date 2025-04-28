@@ -6,7 +6,7 @@ import java.util.Set;
 public interface DistanceMetric {
         double aggregate(List<Double> distances);
 
-        default double calculate(Document doc1, Document doc2, TextMetric textMetric, Set<Integer> selectedFeatureIndices) {
+        default double calculate(Document doc1, Document doc2, TextMeasure textMeasure, Set<Integer> selectedFeatureIndices) {
                 FeatureVector vec1 = doc1.getFeatures();
                 FeatureVector vec2 = doc2.getFeatures();
                 List<Double> distances = new java.util.ArrayList<>();
@@ -14,47 +14,47 @@ public interface DistanceMetric {
                 for (Integer index : selectedFeatureIndices) {
                         switch (index) {
                                 case 0:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 java.util.Collections.singletonList(vec1.getFirstName0()),
                                                 java.util.Collections.singletonList(vec2.getFirstName0())
                                         ));
                                         break;
                                 case 1:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 vec1.getOrganisations1(), vec2.getOrganisations1()
                                         ));
                                         break;
                                 case 2:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 java.util.Collections.singletonList(vec1.getPopularCountry2()),
                                                 java.util.Collections.singletonList(vec2.getPopularCountry2())
                                         ));
                                         break;
                                 case 3:
-                                        distances.add(1.0 - textMetric.calculate(
-                                                java.util.Collections.singletonList(vec1.getFirstCountry3()),
-                                                java.util.Collections.singletonList(vec2.getFirstCountry3())
+                                        distances.add(1.0 - textMeasure.calculate(
+                                                java.util.Collections.singletonList(vec1.getFirstCity3()),
+                                                java.util.Collections.singletonList(vec2.getFirstCity3())
                                         ));
                                         break;
                                 case 4:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 java.util.Collections.singletonList(vec1.getPopularTopic4()),
                                                 java.util.Collections.singletonList(vec2.getPopularTopic4())
                                         ));
                                         break;
                                 case 5:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 vec1.getCurrency5(), vec2.getCurrency5()
                                         ));
                                         break;
                                 case 6:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 java.util.Collections.singletonList(vec1.getAuthor6()),
                                                 java.util.Collections.singletonList(vec2.getAuthor6())
                                         ));
                                         break;
                                 case 7:
-                                        distances.add(1.0 - textMetric.calculate(
+                                        distances.add(1.0 - textMeasure.calculate(
                                                 java.util.Collections.singletonList(vec1.getLocalisation7()),
                                                 java.util.Collections.singletonList(vec2.getLocalisation7())
                                         ));

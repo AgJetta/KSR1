@@ -62,8 +62,8 @@ public class Main {
         DistanceMetric euclidean = new EuclideanDistance();
         DistanceMetric manhattan = new ManhattanDistance();
         DistanceMetric chebyshev = new ChebyshevDistance();
-        TextSimilarityMeasure cosine = new CosineSimilarity();
-        TextSimilarityMeasure jaccard = new JaccardSimilarity();
+        TextMeasure cosine = new CosineTextMeasure();
+        TextMeasure jaccard = new JaccardTextMeasure();
 
         // 1. Compare classification results for different k values
         System.out.println("\n==== Experiment 1: Impact of k value ====");
@@ -107,11 +107,11 @@ public class Main {
 
         // Experiment with text similarity measures
         System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
-        Map<String, TextSimilarityMeasure> similarities = new LinkedHashMap<>();
+        Map<String, TextMeasure> similarities = new LinkedHashMap<>();
         similarities.put("Cosine", cosine);
         similarities.put("Jaccard", jaccard);
 
-        for (Map.Entry<String, TextSimilarityMeasure> entry : similarities.entrySet()) {
+        for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
             KNN classifier = new KNN(bestK, 0.7, allFeatures, euclidean, entry.getValue());
             classifier.splitDataset(documents);
             classifier.evaluateModel();

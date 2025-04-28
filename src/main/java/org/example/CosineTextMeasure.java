@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CosineTextMetric implements TextMetric {
+public class CosineTextMeasure implements TextMeasure {
 
     @Override
     public double calculate(List<String> list1, List<String> list2) {

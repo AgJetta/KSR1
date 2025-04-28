@@ -9,7 +9,7 @@ public class KNN {
     private double trainRatio;
     private Set<Integer> selectedFeatureIndices;
     private DistanceMetric distanceMetric;
-    private TextSimilarityMeasure textSimilarityMeasure;
+    private TextMeasure textMeasure;
 
     private List<Document> allDocuments;
     private List<Document> trainingDocuments;
@@ -21,12 +21,12 @@ public class KNN {
     private int correctPredictions;
 
     public KNN(int k, double trainRatio, Set<Integer> selectedFeatureIndices,
-               DistanceMetric distanceMetric, TextSimilarityMeasure textSimilarityMeasure) {
+               DistanceMetric distanceMetric, TextMeasure textMeasure) {
         this.k = k;
         this.trainRatio = trainRatio;
         this.selectedFeatureIndices = selectedFeatureIndices;
         this.distanceMetric = distanceMetric;
-        this.textSimilarityMeasure = textSimilarityMeasure;
+        this.textMeasure = textMeasure;
 
         this.truePositives = new HashMap<>();
         this.falsePositives = new HashMap<>();
@@ -69,59 +69,7 @@ public class KNN {
     }
 
     private double calculateDistance(Document doc1, Document doc2) {
-        double distance = 0.0;
-
-        // Handle numeric features with the chosen distance metric
-        if (selectedFeatureIndices.contains(8) || selectedFeatureIndices.contains(9)) {
-            distance += distanceMetric.calculate(doc1, doc2, selectedFeatureIndices);
-        }
-
-        if (selectedFeatureIndices.stream().anyMatch(i -> i < 8)) {
-            distance += calculateTextDistance(doc1, doc2);
-        }
-
-        return distance;
-    }
-
-    // For categorical features
-    private double calculateTextDistance(Document doc1, Document doc2) {
-        double textDistance = 0.0;
-        FeatureVector vec1 = doc1.getFeatures();
-        FeatureVector vec2 = doc2.getFeatures();
-
-        // Single categorical features
-        if (selectedFeatureIndices.contains(0)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getFirstName0(), vec2.getFirstName0());
-        }
-        if (selectedFeatureIndices.contains(2)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getPopularCountry2(), vec2.getPopularCountry2());
-        }
-        if (selectedFeatureIndices.contains(3)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getFirstCity3(), vec2.getFirstCity3());
-        }
-        if (selectedFeatureIndices.contains(4)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getPopularTopic4(), vec2.getPopularTopic4());
-        }
-        if (selectedFeatureIndices.contains(6)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getAuthor6(), vec2.getAuthor6());
-        }
-        if (selectedFeatureIndices.contains(7)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(vec1.getLocalisation7(), vec2.getLocalisation7());
-        }
-
-        // List-based categorical features
-        if (selectedFeatureIndices.contains(1)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(
-                    String.join(",", vec1.getOrganisations1()),
-                    String.join(",", vec2.getOrganisations1()));
-        }
-        if (selectedFeatureIndices.contains(5)) {
-            textDistance += textSimilarityMeasure.calculateSimilarity(
-                    String.join(",", vec1.getCurrency5()),
-                    String.join(",", vec2.getCurrency5()));
-        }
-
-        return textDistance;
+        return distanceMetric.calculate(doc1, doc2, textMeasure, selectedFeatureIndices);
     }
 
     // Run classification on the test set and calculate metrics
