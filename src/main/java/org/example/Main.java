@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Main {
-
     public static void main(String[] args) {
         // DEV: .SGM FILES WITH THE DATA, REPLACE FOR YOUR PATH
         String docDir;
@@ -15,16 +14,32 @@ public class Main {
             throw new IllegalArgumentException("Please provide the path to the directory containing .sgm files.");
         }
 
-        List<org.example.Document> documents = new ArrayList<>();
         DocumentLoader loader = new DocumentLoader();
+        List<org.example.Document> documents;
         try {
             documents = loader.loadDocuments(docDir);
         }
         catch (Exception e) {
             System.err.println("Error loading documents: " + e.getMessage());
             System.err.println("CHECK IF THE DATA DIRECTORY IS CORRECT");
+            return;
         }
 
+        boolean isPredefined = false;
+        if (args.length >1) {
+            isPredefined = Boolean.parseBoolean(args[1]);
+        }
+
+        if (isPredefined) {
+            predefined_experiments(documents);
+            return;
+        }
+
+        UI ui = new UI(documents);
+        ui.start();
+    }
+
+    public static void predefined_experiments(List<org.example.Document> documents) {
         System.out.println("Loaded " + documents.size() + " documents in total.");
         if (documents.isEmpty()) {
             System.err.println("No documents found. CHECK DIRECTORY PATH OR FILES.  DocumentLoader.java -> main method");
