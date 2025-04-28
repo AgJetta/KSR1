@@ -18,7 +18,6 @@ public class UI {
 
     public void start() {
         System.out.println("===== KNN Classification =====");
-        System.out.println("Loaded " + documents.size() + " documents in total.");
 
         if (documents.isEmpty()) {
             System.err.println("No documents found. Please check your data directory path.");
