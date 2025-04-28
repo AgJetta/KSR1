@@ -1,0 +1,231 @@
+Kabul
+Tirane
+Algiers
+Pago Pago
+Andorra la Vella
+Luanda
+The Valley
+Saint John's
+Buenos Aires
+Yerevan
+Oranjestad
+Canberra
+Vienna
+Baku
+Nassau
+Manama
+Dhaka
+Bridgetown
+Minsk
+Brussels
+Belmopan
+Porto-Novo
+Hamilton
+Thimphu
+La Paz
+Sarajevo
+Gaborone
+Brasilia
+none
+Road Town
+Bandar Seri Begawan
+Sofia
+Ouagadougou
+Rangoon
+Bujumbura
+Phnom Penh
+Yaounde
+Ottawa
+Praia
+George Town
+Bangui
+N'Djamena
+Santiago
+Beijing
+The Settlement
+West Island
+Bogota
+Moroni
+Brazzaville
+Avarua
+San Jose
+Yamoussoukro
+Zagreb
+Havana
+Nicosia
+Prague
+Copenhagen
+Djibouti
+Roseau
+Santo Domingo
+Quito
+Cairo
+San Salvador
+Malabo
+Asmara
+Tallinn
+Addis Ababa
+Stanley
+Torshavn
+Suva
+Helsinki
+Paris
+Cayenne
+Papeete
+Libreville
+Banjul
+T'bilisi
+Berlin
+Accra
+Gilbraltar
+Athens
+Nuuk
+Saint George's
+Basse-Terre
+Agana
+Guatemala
+Saint Peter Port
+Conakry
+Bissau
+Georgetown
+Port-au-Prince
+Vatican City
+Tegucigalpa
+Victoria
+Budapest
+Reykjavik
+New Delhi
+Jakarta
+Tehran
+Baghdad
+Dublin
+Jerusalem
+Rome
+Kingston
+none
+Tokyo
+Saint Helier
+Amman
+Almaty
+Nairobi
+Tarawa
+P'yongyang
+Seoul
+Kuwait
+Bishkek
+Vientiane
+Riga
+Beirut
+Maseru
+Monrovia
+Tripoli
+Vaduz
+Vilnius
+Luxembourg
+Macau
+Antananarivo
+Lilongwe
+Kuala Lumpur
+Male
+Bamako
+Valletta
+Douglas
+Majuro
+Fort-de-France
+Nouakchott
+Port Louis
+Mamoutzou
+Mexico
+Kolonia
+Chisinau
+Monaco
+Ulaanbaatar
+Plymouth
+Rabat
+Maputo
+Windhoek
+Yaren District
+Kathmandu
+Willemstad
+Noumea
+Wellington
+Managua
+Niamey
+Abuja
+Alofi
+Kingston
+Saipan
+Oslo
+Muscat
+Islamabad
+Panama
+Port Moresby
+Asuncion
+Lima
+Manila
+Adamstown
+Warsaw
+Lisbon
+San Juan
+Doha
+Saint-Denis
+Bucharest
+Moscow
+Kigali
+Jamestown
+Basseterre
+Castries
+Saint-Pierre
+Kingstown
+San Marino
+Sao Tome
+Riyadh
+Dakar
+Belgrade
+Victoria
+Freetown
+Singapore
+Bratislava
+Ljubljana
+Honiara
+Mogadishu
+Pretoria
+Madrid
+Colombo
+Khartoum
+Paramaribo
+Longyearbyen
+Mbabane
+Stockholm
+Bern
+Damascus
+Taipei
+Dushanbe
+Dar es Salaam
+Bangkok
+Lome
+Nuku'alofa
+Port-of-Spain
+Tunis
+Ankara
+Ashgabat
+Grand Turk
+Funafuti
+Kampala
+Kiev
+Abu Dhabi
+London
+Washington, DC
+Montevideo
+Tashkent
+Port-Vila
+Caracas
+Hanoi
+Charlotte Amalie
+Mata-Utu
+none
+Apia
+Sanaa
+Kinshasa
+Lusaka
+Harare

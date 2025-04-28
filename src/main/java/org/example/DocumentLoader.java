@@ -112,15 +112,12 @@ public class DocumentLoader {
 
         String firstName = findFirstOccurrenceInBody(textBody, "people");
         List<String> organizations = findOrganizations(textBody);
-        String firstCountry = findFirstOccurrenceInBody(textBody, "places");
+        String firstCity = findFirstOccurrenceInBody(textBody, "capitals");
         String popularCountry = findMostCommonCountryMentioned(textBody);
-        if (popularCountry.isEmpty()) {
-            popularCountry = firstCountry;
-        }
         String popularTopic = findMostCommonTopicMentioned(textBody, reuters);
         List<String> currencies = extractCurrencies(getText(reuters));
         String author = reuters.select("AUTHOR").text();
-        String dateline = reuters.select("DATELINE").text().split("\\s+")[0].replace(",", "");
+        String dateline = reuters.select("DATELINE").text().split("\\s+")[0].replace(",", "").toLowerCase();
         int dayOfWeek = extractDayOfWeek(reuters.select("DATE").text());
         int wordCount = countWords(textBody);
 
@@ -128,7 +125,7 @@ public class DocumentLoader {
                 firstName,
                 organizations,
                 popularCountry,
-                firstCountry,
+                firstCity,
                 popularTopic,
                 currencies,
                 author,
@@ -408,7 +405,14 @@ public class DocumentLoader {
         // Display some sample data
         for (org.example.Document doc : documents) {
             FeatureVector features = doc.getFeatures();
-            if (features.getPopularTopic4().isEmpty()) {
+            if (features.getPopularTopic4().isEmpty() ||
+                    features.getFirstName0().isEmpty() ||
+                    features.getOrganisations1().isEmpty() ||
+                    features.getPopularCountry2().isEmpty() ||
+                    features.getFirstCity3().isEmpty() ||
+                    features.getCurrency5().isEmpty() ||
+                    features.getAuthor6().isEmpty() ||
+                    features.getLocalisation7().isEmpty()) {
                 continue;
             }
             System.out.println("Document ID: " + doc.getDocumentId());
@@ -416,7 +420,7 @@ public class DocumentLoader {
             System.out.println("First Name: " + features.getFirstName0());
             System.out.println("Organizations: " + features.getOrganisations1());
             System.out.println("Popular Country: " + features.getPopularCountry2());
-            System.out.println("First Country: " + features.getFirstCity3());
+            System.out.println("First City: " + features.getFirstCity3());
             System.out.println("Topic: " + features.getPopularTopic4());
             System.out.println("Currency: " + features.getCurrency5());
             System.out.println("Author: " + features.getAuthor6());
