@@ -111,15 +111,23 @@ public class KNN {
         return (double) correctPredictions / testDocuments.size();
     }
 
-    // Calculate precision for all documents
+    // Precision for all documents: WEIGHTED
     public double getPrecision() {
-        int totalTP = truePositives.values().stream().mapToInt(Integer::intValue).sum();
-        int totalFP = falsePositives.values().stream().mapToInt(Integer::intValue).sum();
+        int totalSamples = allDocuments.size();
 
-        return totalTP == 0 ? 0 : (double) totalTP / (totalTP + totalFP);
+        double weightedPrecision = 0.0;
+        for (String category : truePositives.keySet()) {
+            int samplesPerLabel = (int) allDocuments.stream()
+                    .filter(doc -> doc.getTargetLabel().equals(category))
+                    .count();
+            double precision = getPrecision(category);
+            weightedPrecision += (precision * samplesPerLabel) / totalSamples;
+        }
+
+        return weightedPrecision;
     }
 
-    // Calculate precision for a specific class
+    // Precision for a specific label
     public double getPrecision(String category) {
         int tp = truePositives.getOrDefault(category, 0);
         int fp = falsePositives.getOrDefault(category, 0);
@@ -127,15 +135,23 @@ public class KNN {
         return tp == 0 ? 0 : (double) tp / (tp + fp);
     }
 
-    // Calculate recall for all documents
+    // Recall for all documents: WEIGHTED
     public double getRecall() {
-        int totalTP = truePositives.values().stream().mapToInt(Integer::intValue).sum();
-        int totalFN = falseNegatives.values().stream().mapToInt(Integer::intValue).sum();
+        int totalSamples = allDocuments.size();
 
-        return totalTP == 0 ? 0 : (double) totalTP / (totalTP + totalFN);
+        double weightedRecall = 0.0;
+        for (String category : truePositives.keySet()) {
+            int samplesPerLabel = (int) allDocuments.stream()
+                    .filter(doc -> doc.getTargetLabel().equals(category))
+                    .count();
+            double recall = getRecall(category);
+            weightedRecall += (recall * samplesPerLabel) / totalSamples;
+        }
+
+        return weightedRecall;
     }
 
-    // Calculate recall for a specific class
+    // Calculate recall for a specific label
     public double getRecall(String category) {
         int tp = truePositives.getOrDefault(category, 0);
         int fn = falseNegatives.getOrDefault(category, 0);
@@ -143,15 +159,21 @@ public class KNN {
         return tp == 0 ? 0 : (double) tp / (tp + fn);
     }
 
-    // Calculate F1 score
+    // F1 score for all docs: WEIGHTED
     public double getF1() {
-        double precision = getPrecision();
-        double recall = getRecall();
+        double weightedF1 = 0.0;
+        for (String category : truePositives.keySet()) {
+            int samplesPerLabel = (int) allDocuments.stream()
+                    .filter(doc -> doc.getTargetLabel().equals(category))
+                    .count();
+            double f1 = getF1(category);
+            weightedF1 += (f1 * samplesPerLabel) / allDocuments.size();
+        }
 
-        return (precision + recall == 0) ? 0 : 2 * precision * recall / (precision + recall);
+        return weightedF1;
     }
 
-    // Calculate F1 score for a specific class
+    // F1 score for a specific label
     public double getF1(String category) {
         double precision = getPrecision(category);
         double recall = getRecall(category);
