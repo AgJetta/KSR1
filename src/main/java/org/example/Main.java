@@ -74,7 +74,6 @@ public class Main {
             }
         }
 
-        // 2. Compare classification results for different train/test ratios
         System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
         int bestK = 8;
         for (double ratio : new double[]{0.3, 0.5, 0.7, 0.8, 0.9}) {
@@ -96,7 +95,6 @@ public class Main {
                         category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));            }
         }
 
-        // 3. Compare classification results for different metrics
         System.out.println("\n==== Experiment 3: Impact of distance metric ====");
         Map<String, DistanceMetric> metrics = new LinkedHashMap<>();
         metrics.put("Euclidean", euclidean);
@@ -122,7 +120,6 @@ public class Main {
             }
         }
 
-        // Experiment with text similarity measures
         System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
         Map<String, TextMeasure> similarities = new LinkedHashMap<>();
         similarities.put("Cosine", cosine);
@@ -138,7 +135,6 @@ public class Main {
                     entry.getKey(), classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
         }
 
-         // 4. Compare classification results for different feature subsets
         System.out.println("\n==== Experiment 4: Impact of feature selection ====");
 
         List<Set<Integer>> featureSubsets = new ArrayList<>();

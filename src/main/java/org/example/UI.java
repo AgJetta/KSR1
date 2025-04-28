@@ -195,13 +195,11 @@ public class UI {
 
         System.out.println("\nProcessing...");
 
-        // Create and configure KNN classifier
         KNN classifier = new KNN(k, splitRatio, features, metric, textMeasure);
         classifier.splitDataset(documents);
         classifier.normalizeNumericalFeatures();
         classifier.evaluateModel();
 
-        // Print results
         printResults(classifier);
     }
 
@@ -223,10 +221,6 @@ public class UI {
                     category, classifier.getPrecision(category),
                     classifier.getRecall(category), classifier.getF1(category));
         }
-
-        System.out.println("\n===== Confusion Matrix =====");
-        // Assuming you have a method to get confusion matrix or you can add one to KNN class
-        // classifier.printConfusionMatrix();
 
         System.out.println("\nClassification complete!");
     }

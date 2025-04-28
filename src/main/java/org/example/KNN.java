@@ -33,7 +33,6 @@ public class KNN {
         this.falseNegatives = new HashMap<>();
     }
 
-    // Deterministic
     public void splitDataset(List<Document> documents) {
         this.allDocuments = new ArrayList<>(documents);
         int trainingSize = (int) (documents.size() * trainRatio);
@@ -79,19 +78,16 @@ public class KNN {
         falseNegatives.clear();
         correctPredictions = 0;
 
-        // Get all unique categories
         Set<String> categories = allDocuments.stream()
                 .map(Document::getTargetLabel)
                 .collect(Collectors.toSet());
 
-        // Initialize counters for each category
         for (String category : categories) {
             truePositives.put(category, 0);
             falsePositives.put(category, 0);
             falseNegatives.put(category, 0);
         }
 
-        // Classify each test document and update metrics
         for (Document testDoc : testDocuments) {
             String actualClass = testDoc.getTargetLabel();
             String predictedClass = classify(testDoc);
@@ -106,7 +102,6 @@ public class KNN {
         }
     }
 
-    // Calculate accuracy
     public double getAccuracy() {
         return (double) correctPredictions / testDocuments.size();
     }
@@ -207,10 +202,6 @@ public class KNN {
 
     private record DocumentDistance(Document document, double distance) {}
 
-    /**
-     * Normalizes numerical features (dayOfWeek and wordCount) using z-score standardization.
-     * This should be called after splitting the dataset and before evaluation.
-     */
     public void normalizeNumericalFeatures() {
         double dayOfWeekMean = calculateMean(8);
         double dayOfWeekStdDev = calculateStandardDeviation(8, dayOfWeekMean);
@@ -268,15 +259,9 @@ public class KNN {
 
     private int normalizeFeature(double value, double mean, double stdDev) {
         if (stdDev == 0) {
-            return 0; // All normalized values would be 0
+            return 0;
         }
-
-        // Apply z-score normalization: (x - mean) / stdDev
         double normalized = (value - mean) / stdDev;
-
-        // Return the normalized value as an integer
-        // Note: we're rounding to keep the integer type in FeatureVector
-        // A better approach would be to modify FeatureVector to use doubles for these fields
         return (int) Math.round(normalized);
     }
 }

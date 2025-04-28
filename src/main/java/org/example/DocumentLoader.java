@@ -17,11 +17,6 @@ public class DocumentLoader {
 
     private Set<Integer> badIds = new HashSet<>();
 
-    /**
-     * Loads all Reuters documents from a directory containing .sgm files
-     * @param directoryPath path to directory with .sgm files
-     * @return List of Document objects
-     */
     public List<org.example.Document> loadDocuments(String directoryPath) {
         List<org.example.Document> documents = new ArrayList<>();
         File directory = new File(directoryPath);
@@ -51,11 +46,6 @@ public class DocumentLoader {
         return documents;
     }
 
-    /**
-     * Extracts all Reuters documents from a single .sgm file
-     * @param file the .sgm file to process
-     * @return List of Document objects
-     */
     private List<org.example.Document> extractDocumentsFromFile(File file) throws IOException {
         List<org.example.Document> documents = new ArrayList<>();
 
@@ -95,10 +85,7 @@ public class DocumentLoader {
     }
 
     private String fixContent(String content) {
-        // Add a root element for JSoup
         content = "<ROOT>" + content + "</ROOT>";
-
-        // Replace problematic characters
         content = content.replaceAll("&", "&amp;");
 
         return content;
@@ -146,7 +133,6 @@ public class DocumentLoader {
             System.err.println("Error loading dictionary or processing body: " + e.getMessage());
         }
 
-        // Return empty list if no match is found
         return Collections.emptyList();
     }
 
@@ -162,15 +148,12 @@ public class DocumentLoader {
             wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
             Map<String, Integer> topicCount = new HashMap<>();
 
-//            int count = 0;
             for (String topic : topics) {
                 int count = Collections.frequency(wordList, topic.toLowerCase());
                 if (count > 0) {
                     topicCount.put(topic, count);
                 }
             }
-            // if max count is 1, return empty string
-            // todoP
             return topicCount.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
@@ -187,15 +170,12 @@ public class DocumentLoader {
             wordList = wordList.stream().map(String::toLowerCase).collect(Collectors.toList());
             Map<String, Integer> countryCount = new HashMap<>();
 
-//            int count = 0;
             for (String place : dictionary) {
                 int count = Collections.frequency(wordList, place.toLowerCase());
                 if (count > 0) {
                     countryCount.put(place, count);
                 }
             }
-            // if max count is 1, return empty string
-            // todo
             return countryCount.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
@@ -223,16 +203,9 @@ public class DocumentLoader {
         } catch (Exception e) {
             System.err.println("Error loading dictionary or processing body: " + e.getMessage());
         }
-
-        // Return null if no match is found
         return "";
     }
 
-    /**
-     * Extract the target label from a Reuters element
-     * The label is the first value in the PLACES D element
-     * Return EMPTY STRING if the label is not in the list of valid labels
-     */
     private String extractLabel(Element reuters) {
         List<String> validPlaces = Arrays.asList("west-germany", "usa", "france", "uk", "canada", "japan");
         Elements places = reuters.select("PLACES D");
@@ -246,9 +219,6 @@ public class DocumentLoader {
         return "INVALID";
     }
 
-    /**
-     * Extract text content from the body or title
-     */
     private String getText(Element reuters) {
         String bodyText = reuters.select("BODY").text();
         if (bodyText.isEmpty()) {
@@ -257,9 +227,6 @@ public class DocumentLoader {
         return bodyText;
     }
 
-    /**
-     * Simple currency extraction using keywords
-     */
     private List<String> extractCurrencies(String text) {
         try {
             if (text == null || text.isEmpty()) {
@@ -286,9 +253,6 @@ public class DocumentLoader {
         }
     }
 
-    /**
-     * Simple day of week extraction
-     */
     private int extractDayOfWeek(String dateText){
         SimpleDateFormat sdf = new SimpleDateFormat("d-MMM-yyyy HH:mm:ss.SS", Locale.ENGLISH);
         sdf.setLenient(true); // Parsing errors otherwise
@@ -302,13 +266,10 @@ public class DocumentLoader {
         }
         catch (ParseException e) {
             System.err.println("Error parsing date: " + e.getMessage());
-            return -1; // Return -1 or some error code
+            return -1;
         }
     }
 
-    /**
-     * Count words in text
-     */
     private int countWords(String text) {
         if (text == null || text.isEmpty()) {
             return 0;
@@ -326,10 +287,6 @@ public class DocumentLoader {
             List<String> lines = reader.lines().toList();
             return lines.toArray(new String[0]);
         }
-    }
-
-    public Set<Integer> getBadIds() {
-        return badIds;
     }
 
     public void loadBadIds() {
