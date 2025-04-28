@@ -12,8 +12,8 @@ public class FeatureVector {
     private List<String> currency5;
     private String author6;
     private String localisation7;
-    private int dayOfWeek8;
-    private int wordCount9;
+    private double dayOfWeek8;
+    private double wordCount9;
 
     public FeatureVector(String firstName0, List<String> organisations1, String popularCountry2, String firstCity3, String popularTopic4, List<String> currency5, String author6, String localisation7, int dayOfWeek8, int wordCount9) {
         this.firstName0 = firstName0;
@@ -28,7 +28,7 @@ public class FeatureVector {
         this.wordCount9 = wordCount9;
     }
 
-    public List<Integer> getNumericFeatures() {
+    public List<Double> getNumericFeatures() {
         return List.of(dayOfWeek8, wordCount9);
     }
 
@@ -72,12 +72,20 @@ public class FeatureVector {
         return localisation7;
     }
 
-    public int getDayOfWeek8() {
+    public double getDayOfWeek8() {
         return dayOfWeek8;
     }
 
-    public int getWordCount9() {
+    public double getWordCount9() {
         return wordCount9;
+    }
+
+    public void setDayOfWeek8(double dayOfWeek8) {
+        this.dayOfWeek8 = dayOfWeek8;
+    }
+
+    public void setWordCount9(double wordCount9) {
+        this.wordCount9 = wordCount9;
     }
 
     @Override

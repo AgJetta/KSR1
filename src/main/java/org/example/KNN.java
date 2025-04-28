@@ -206,4 +206,77 @@ public class KNN {
     }
 
     private record DocumentDistance(Document document, double distance) {}
+
+    /**
+     * Normalizes numerical features (dayOfWeek and wordCount) using z-score standardization.
+     * This should be called after splitting the dataset and before evaluation.
+     */
+    public void normalizeNumericalFeatures() {
+        double dayOfWeekMean = calculateMean(8);
+        double dayOfWeekStdDev = calculateStandardDeviation(8, dayOfWeekMean);
+        double wordCountMean = calculateMean(9);
+        double wordCountStdDev = calculateStandardDeviation(9, wordCountMean);
+
+        for (Document doc : trainingDocuments) {
+            FeatureVector features = doc.getFeatures();
+            double originalDayOfWeek = features.getDayOfWeek8();
+            double originalWordCount = features.getWordCount9();
+            double normalizedDayOfWeek = normalizeFeature(originalDayOfWeek, dayOfWeekMean, dayOfWeekStdDev);
+            double normalizedWordCount = normalizeFeature(originalWordCount, wordCountMean, wordCountStdDev);
+            doc.getFeatures().setDayOfWeek8(normalizedDayOfWeek);
+            doc.getFeatures().setWordCount9(normalizedWordCount);
+        }
+    }
+
+    private double calculateMean(int featureIndex) {
+        double sum = 0.0;
+
+        for (Document doc : trainingDocuments) {
+            FeatureVector features = doc.getFeatures();
+            if (featureIndex == 8) {
+                sum += features.getDayOfWeek8();
+            } else if (featureIndex == 9) {
+                sum += features.getWordCount9();
+            }
+        }
+
+        return sum / trainingDocuments.size();
+    }
+
+    private double calculateStandardDeviation(int featureIndex, double mean) {
+        double sumSquaredDifferences = 0.0;
+
+        for (Document doc : trainingDocuments) {
+            FeatureVector features = doc.getFeatures();
+            double value;
+
+            if (featureIndex == 8) {
+                value = features.getDayOfWeek8();
+            } else if (featureIndex == 9) {
+                value = features.getWordCount9();
+            } else {
+                throw new IllegalArgumentException("Feature index must be 8 or 9");
+            }
+
+            double difference = value - mean;
+            sumSquaredDifferences += difference * difference;
+        }
+
+        double variance = sumSquaredDifferences / trainingDocuments.size();
+        return Math.sqrt(variance);
+    }
+
+    private int normalizeFeature(double value, double mean, double stdDev) {
+        if (stdDev == 0) {
+            return 0; // All normalized values would be 0
+        }
+
+        // Apply z-score normalization: (x - mean) / stdDev
+        double normalized = (value - mean) / stdDev;
+
+        // Return the normalized value as an integer
+        // Note: we're rounding to keep the integer type in FeatureVector
+        // A better approach would be to modify FeatureVector to use doubles for these fields
+        return (int) Math.round(normalized);
+    }
 }

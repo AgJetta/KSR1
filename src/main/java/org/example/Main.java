@@ -44,6 +44,7 @@ public class Main {
         for (int k : new int[]{1, 2, 3, 4}) {
             KNN classifier = new KNN(k, 0.6, someFeatures, euclidean, cosine);
             classifier.splitDataset(documents);
+            classifier.normalizeNumericalFeatures();
             classifier.evaluateModel();
 
             System.out.printf("k = %2d: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
@@ -56,6 +57,7 @@ public class Main {
         for (double ratio : new double[]{0.3, 0.5, 0.7, 0.8, 0.9}) {
             KNN classifier = new KNN(bestK, ratio, someFeatures, euclidean, cosine);
             classifier.splitDataset(documents);
+            classifier.normalizeNumericalFeatures();
             classifier.evaluateModel();
 
             System.out.printf("Train/Test ratio = %.1f/%.1f: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
@@ -72,6 +74,7 @@ public class Main {
         for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
             KNN classifier = new KNN(bestK, 0.7, someFeatures, entry.getValue(), cosine);
             classifier.splitDataset(documents);
+            classifier.normalizeNumericalFeatures();
             classifier.evaluateModel();
 
             System.out.printf("Metric = %s: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
@@ -87,6 +90,7 @@ public class Main {
         for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
             KNN classifier = new KNN(bestK, 0.7, someFeatures, euclidean, entry.getValue());
             classifier.splitDataset(documents);
+            classifier.normalizeNumericalFeatures();
             classifier.evaluateModel();
 
             System.out.printf("Text Similarity = %s: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
@@ -112,6 +116,7 @@ public class Main {
             Set<Integer> subset = featureSubsets.get(i);
             KNN classifier = new KNN(bestK, 0.7, subset, euclidean, cosine);
             classifier.splitDataset(documents);
+            classifier.normalizeNumericalFeatures();
             classifier.evaluateModel();
 
             System.out.printf("Feature subset %d (%s): Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
@@ -124,6 +129,7 @@ public class Main {
         System.out.println("\n==== Detailed metrics for best configuration ====");
         KNN bestClassifier = new KNN(bestK, 0.7, someFeatures, euclidean, cosine);
         bestClassifier.splitDataset(documents);
+        bestClassifier.normalizeNumericalFeatures();
         bestClassifier.evaluateModel();
 
         System.out.println("Overall metrics:");
