@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 public class DocumentLoader {
 
+    private Set<Integer> badIds = new HashSet<>();
+
     /**
      * Loads all Reuters documents from a directory containing .sgm files
      * @param directoryPath path to directory with .sgm files
@@ -31,6 +33,8 @@ public class DocumentLoader {
             System.out.println("No .sgm files found in directory: " + directoryPath);
             return documents;
         }
+
+        loadBadIds();
 
         // Process each .sgm file
         for (File file : sgmFiles) {
@@ -59,20 +63,24 @@ public class DocumentLoader {
         String content = new String(Files.readAllBytes(file.toPath()));
 
         content = fixContent(content);
-
         Document jsoupDoc = Jsoup.parse(content, "", Parser.xmlParser());
-
         Elements reutersElements = jsoupDoc.select("REUTERS");
 
         for (Element reuters : reutersElements) {
             try {
                 String docId = reuters.attr("NEWID");
+                int docIdInt = Integer.parseInt(docId);
+                if (checkIfBadId(docIdInt)) {
+                    System.out.println("Skipping bad ID: " + docId);
+                    continue;
+                }
 
                 FeatureVector features = extractFeatures(reuters);
                 String targetLabel = extractLabel(reuters);
                 System.out.print("Document ID: " + docId + ", Label: " + targetLabel);
                 if (targetLabel.equals("INVALID") | targetLabel.equals("MANY OR NONE")) {
-                    System.out.println(" (Invalid label)");
+                    System.out.println(" (Invalid label -- appending bad_ids.txt)");
+                    appendBadIdResources(docIdInt);
                     continue;
                 }
                 System.out.println(" (Valid label)");
@@ -165,7 +173,7 @@ public class DocumentLoader {
                 }
             }
             // if max count is 1, return empty string
-            // todo
+            // todoP
             return topicCount.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
@@ -323,13 +331,62 @@ public class DocumentLoader {
         }
     }
 
+    public Set<Integer> getBadIds() {
+        return badIds;
+    }
+
+    public void loadBadIds() {
+        try {
+            String[] badIdsArray;
+            // check if the file exists
+            File file = new File("bad_ids.txt");
+            if (!file.exists()) {
+                System.out.println("bad_ids.txt not found. Creating a new one.");
+                file.createNewFile();
+                return;
+            }
+            try (BufferedReader reader = new BufferedReader(new FileReader("bad_ids.txt"))) {
+                badIdsArray = reader.lines().toArray(String[]::new);
+            }
+            if (badIdsArray.length == 0) {
+                System.out.println("No bad IDs found in bad_ids.txt");
+                return;
+            }
+
+            for (String id : badIdsArray) {
+                try {
+                    int idInt = Integer.parseInt(id);
+                    badIds.add(idInt);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid ID format: " + id);
+                }
+            }
+        }
+        catch (Exception e) {
+            System.err.println("Error loading bad IDs: " + e.getMessage());
+        }
+    }
+
+    public boolean checkIfBadId(int id) {
+        return badIds.contains(id);
+    }
+
+    public void appendBadIdResources(Integer id) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("bad_ids.txt", true))) {
+            writer.write(id.toString());
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Error writing to bad_ids.txt: " + e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         // DEV: .SGM FILES WITH THE DATA, REPLACE FOR YOUR PATH
         String docDir;
         if (args.length > 0) {
             docDir = args[0];
         } else {
-            docDir = "C:\\Users\\avish\\Downloads\\reuters+21578+text+categorization+collection\\reuters21578.tar\\reuters21578";
+            throw new IllegalArgumentException("Please provide the path to the directory containing .sgm files.");
         }
 
         List<org.example.Document> documents = new ArrayList<>();
