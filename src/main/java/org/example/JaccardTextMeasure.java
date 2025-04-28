@@ -15,6 +15,7 @@ public class JaccardTextMeasure implements TextMeasure {
         Set<String> set1 = new HashSet<>(list1);
         Set<String> set2 = new HashSet<>(list2);
 
+        // Calculate Jaccard similarity for sets of words
         Set<String> intersection = new HashSet<>(set1);
         intersection.retainAll(set2);
 
@@ -22,9 +23,38 @@ public class JaccardTextMeasure implements TextMeasure {
         union.addAll(set2);
 
         if (union.isEmpty()) {
-            return 0.0;
+            return 0.0; // If no union (both lists are empty)
         }
 
-        return (double) intersection.size() / union.size();
+        return (double) intersection.size() / union.size(); // Jaccard similarity for lists of strings
+    }
+
+    @Override
+    public double calculate(String str1, String str2) {
+        if (str1 == null || str2 == null || (str1.isEmpty() && str2.isEmpty())) {
+            return 1.0;
+        }
+
+        Set<Character> set1 = new HashSet<>();
+        for (char c : str1.toCharArray()) {
+            set1.add(c);
+        }
+
+        Set<Character> set2 = new HashSet<>();
+        for (char c : str2.toCharArray()) {
+            set2.add(c);
+        }
+
+        Set<Character> intersection = new HashSet<>(set1);
+        intersection.retainAll(set2);
+
+        Set<Character> union = new HashSet<>(set1);
+        union.addAll(set2);
+
+        if (union.isEmpty()) {
+            return 0.0; // If no union (both words are empty)
+        }
+
+        return (double) intersection.size() / union.size(); // Jaccard similarity
     }
 }

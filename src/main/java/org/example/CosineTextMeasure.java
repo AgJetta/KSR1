@@ -1,50 +1,85 @@
 package org.example;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CosineTextMeasure implements TextMeasure {
 
+    // Method to calculate cosine similarity for two lists of words
     @Override
     public double calculate(List<String> list1, List<String> list2) {
-        if ((list1 == null || list1.isEmpty()) && (list2 == null || list2.isEmpty())) {
-            return 1.0; // Two empty documents are considered identical
-        }
-        if (list1 == null || list2 == null) {
-            return 0.0; // One empty and one non-empty => no similarity
-        }
+        // Create word frequency maps for both lists
+        Map<String, Integer> freqMap1 = getWordFrequencyMap(list1);
+        Map<String, Integer> freqMap2 = getWordFrequencyMap(list2);
 
-        Map<String, Integer> freq1 = buildFrequencyMap(list1);
-        Map<String, Integer> freq2 = buildFrequencyMap(list2);
+        // Combine all unique words from both lists to form the union of vocabularies
+        Set<String> allWords = new HashSet<>(freqMap1.keySet());
+        allWords.addAll(freqMap2.keySet());
 
+        // Compute the dot product of the frequency vectors
         double dotProduct = 0.0;
-        double norm1 = 0.0;
-        double norm2 = 0.0;
-
-        for (String key : freq1.keySet()) {
-            int val1 = freq1.getOrDefault(key, 0);
-            int val2 = freq2.getOrDefault(key, 0);
-            dotProduct += val1 * val2;
-            norm1 += val1 * val1;
+        for (String word : allWords) {
+            int freq1 = freqMap1.getOrDefault(word, 0);
+            int freq2 = freqMap2.getOrDefault(word, 0);
+            dotProduct += freq1 * freq2;
         }
 
-        for (int val : freq2.values()) {
-            norm2 += val * val;
-        }
+        // Compute the magnitudes of the frequency vectors
+        double magnitude1 = Math.sqrt(freqMap1.values().stream().mapToDouble(f -> f * f).sum());
+        double magnitude2 = Math.sqrt(freqMap2.values().stream().mapToDouble(f -> f * f).sum());
 
-        if (norm1 == 0.0 || norm2 == 0.0) {
-            return 0.0; // Avoid division by zero
+        // Calculate and return the cosine similarity
+        if (magnitude1 == 0 || magnitude2 == 0) {
+            return 0; // If either vector is zero (empty text), return similarity 0
         }
-
-        return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+        return dotProduct / (magnitude1 * magnitude2);
     }
 
-    private Map<String, Integer> buildFrequencyMap(List<String> list) {
-        Map<String, Integer> freqMap = new HashMap<>();
-        for (String item : list) {
-            freqMap.put(item, freqMap.getOrDefault(item, 0) + 1);
+
+    public double calculate(String list1, String list2) {
+        // Convert both strings to character frequency maps
+        Map<Character, Integer> freqMap1 = getCharacterFrequencyMap(list1);
+        Map<Character, Integer> freqMap2 = getCharacterFrequencyMap(list2);
+
+        // Combine all unique characters from both strings to form the union of characters
+        Set<Character> allChars = new HashSet<>(freqMap1.keySet());
+        allChars.addAll(freqMap2.keySet());
+
+        // Compute the dot product of the frequency vectors
+        double dotProduct = 0.0;
+        for (Character c : allChars) {
+            int freq1 = freqMap1.getOrDefault(c, 0);
+            int freq2 = freqMap2.getOrDefault(c, 0);
+            dotProduct += freq1 * freq2;
+        }
+
+        // Compute the magnitudes of the frequency vectors
+        double magnitude1 = Math.sqrt(freqMap1.values().stream().mapToDouble(f -> f * f).sum());
+        double magnitude2 = Math.sqrt(freqMap2.values().stream().mapToDouble(f -> f * f).sum());
+
+        // Calculate and return the cosine similarity
+        if (magnitude1 == 0 || magnitude2 == 0) {
+            return 0; // If either vector is zero (empty string), return similarity 0
+        }
+        return dotProduct / (magnitude1 * magnitude2);
+    }
+
+    // Helper method to compute a frequency map of characters from a string
+    private Map<Character, Integer> getCharacterFrequencyMap(String str) {
+        Map<Character, Integer> freqMap = new HashMap<>();
+        for (char c : str.toCharArray()) {
+            freqMap.put(c, freqMap.getOrDefault(c, 0) + 1);
         }
         return freqMap;
     }
+
+    // Helper method to compute a frequency map of words from a list
+    private Map<String, Integer> getWordFrequencyMap(List<String> words) {
+        Map<String, Integer> freqMap = new HashMap<>();
+        for (String word : words) {
+            word = word.toLowerCase(); // Case-insensitive comparison
+            freqMap.put(word, freqMap.getOrDefault(word, 0) + 1);
+        }
+        return freqMap;
+    }
+
 }
