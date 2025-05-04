@@ -197,7 +197,6 @@ public class UI {
 
         KNN classifier = new KNN(k, splitRatio, features, metric, textMeasure);
         classifier.splitDataset(documents);
-        classifier.printClassDistribution();
         classifier.normalizeNumericalFeatures();
         classifier.evaluateModel();
 

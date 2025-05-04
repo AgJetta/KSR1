@@ -19,6 +19,7 @@ public class KNN {
     private final Map<String, Integer> falsePositives;
     private final Map<String, Integer> falseNegatives;
     private int correctPredictions;
+    private Map<String, Integer> categoryDistribution;
 
     public KNN(int k, double trainRatio, Set<Integer> selectedFeatureIndices,
                DistanceMetric distanceMetric, TextMeasure textMeasure) {
@@ -49,17 +50,18 @@ public class KNN {
 
     // Single document
     public String classify(Document document) {
-        List<DocumentDistance> distances = new ArrayList<>();
+        PriorityQueue<DocumentDistance> nearestNeighbors = new PriorityQueue<>(
+                Comparator.comparingDouble(DocumentDistance::distance).reversed()
+        );
 
         for (Document trainDoc : trainingDocuments) {
             double distance = calculateDistance(document, trainDoc);
-            distances.add(new DocumentDistance(trainDoc, distance));
+            nearestNeighbors.add(new DocumentDistance(trainDoc, distance));
+
+            if (nearestNeighbors.size() > k) {
+                nearestNeighbors.poll();  // remove the "worst" neighbor (biggest distance)
+            }
         }
-
-        // Ascending sort
-        distances.sort(Comparator.comparingDouble(DocumentDistance::distance));
-
-        List<DocumentDistance> nearestNeighbors = distances.subList(0, Math.min(k, distances.size()));
 
         Map<String, Integer> classCounts = new HashMap<>();
         for (DocumentDistance neighbor : nearestNeighbors) {
@@ -84,11 +86,13 @@ public class KNN {
         falseNegatives.clear();
         correctPredictions = 0;
 
-        Set<String> categories = allDocuments.stream()
-                .map(Document::getTargetLabel)
-                .collect(Collectors.toSet());
+        Map<String, Integer> categoryDistribution = new HashMap<>();
+        for (Document doc : allDocuments) {
+            String category = doc.getTargetLabel();
+            categoryDistribution.put(category, categoryDistribution.getOrDefault(category, 0) + 1);
+        }
 
-        for (String category : categories) {
+        for (String category : categoryDistribution.keySet()) {
             truePositives.put(category, 0);
             falsePositives.put(category, 0);
             falseNegatives.put(category, 0);
@@ -106,6 +110,8 @@ public class KNN {
                 falseNegatives.put(actualClass, falseNegatives.get(actualClass) + 1);
             }
         }
+
+        this.categoryDistribution = categoryDistribution;
     }
 
     public Double getAccuracy() {
@@ -119,9 +125,7 @@ public class KNN {
         double weightedPrecision = 0.0;
         int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
-            int samplesPerLabel = (int) allDocuments.stream()
-                    .filter(doc -> doc.getTargetLabel().equals(category))
-                    .count();
+            int samplesPerLabel = categoryDistribution.get(category);
             Double precision = getPrecision(category);
 
             if (precision != null) {
@@ -156,9 +160,7 @@ public class KNN {
         double weightedRecall = 0.0;
         int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
-            int samplesPerLabel = (int) allDocuments.stream()
-                    .filter(doc -> doc.getTargetLabel().equals(category))
-                    .count();
+            int samplesPerLabel = categoryDistribution.get(category);
             Double recall = getRecall(category);
 
             if (recall != null) {
@@ -191,9 +193,7 @@ public class KNN {
         double weightedF1 = 0.0;
         int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
-            int samplesPerLabel = (int) allDocuments.stream()
-                    .filter(doc -> doc.getTargetLabel().equals(category))
-                    .count();
+            int samplesPerLabel = categoryDistribution.get(category);
             Double f1 = getF1(category);
 
             if (f1 != null) {
@@ -229,10 +229,13 @@ public class KNN {
 
     // Calculates mean, std, applies normalization
     public void normalizeNumericalFeatures() {
-        double dayOfWeekMean = calculateMean(8);
-        double dayOfWeekStdDev = calculateStandardDeviation(8, dayOfWeekMean);
-        double wordCountMean = calculateMean(9);
-        double wordCountStdDev = calculateStandardDeviation(9, wordCountMean);
+        double[] means = calculateMeans();
+        double dayOfWeekMean = means[0];
+        double wordCountMean = means[1];
+
+        double[] stdDevs = calculateStandardDeviation(dayOfWeekMean, wordCountMean);
+        double dayOfWeekStdDev = stdDevs[0];
+        double wordCountStdDev = stdDevs[1];
 
         normalizeDocuments(dayOfWeekMean, dayOfWeekStdDev, wordCountMean, wordCountStdDev, trainingDocuments);
         normalizeDocuments(dayOfWeekMean, dayOfWeekStdDev, wordCountMean, wordCountStdDev, testDocuments);
@@ -240,60 +243,51 @@ public class KNN {
 
     // Applies normalization
     private void normalizeDocuments(double dayOfWeekMean, double dayOfWeekStdDev, double wordCountMean, double wordCountStdDev, List<Document> trainingDocuments) {
+        double dayOfWeekFactor = dayOfWeekStdDev == 0 ? 0 : 1/dayOfWeekStdDev;
+        double wordCountFactor = wordCountStdDev == 0 ? 0 : 1/wordCountStdDev;
+
         for (Document doc : trainingDocuments) {
             FeatureVector features = doc.getFeatures();
-            double originalDayOfWeek = features.getDayOfWeek8();
-            double originalWordCount = features.getWordCount9();
-            double normalizedDayOfWeek = normalizeFeature(originalDayOfWeek, dayOfWeekMean, dayOfWeekStdDev);
-            double normalizedWordCount = normalizeFeature(originalWordCount, wordCountMean, wordCountStdDev);
+            double normalizedDayOfWeek = (features.getDayOfWeek8() - dayOfWeekMean) * dayOfWeekFactor;
+            double normalizedWordCount = (features.getWordCount9() - wordCountMean) * wordCountFactor;
             doc.getFeatures().setDayOfWeek8(normalizedDayOfWeek);
             doc.getFeatures().setWordCount9(normalizedWordCount);
         }
     }
 
-    private double calculateMean(int featureIndex) {
-        double sum = 0.0;
+    // Means only for numerical features: dayOfWeek8, wordCount9
+    private double[] calculateMeans() {
+        double dayOfWeekSum = 0.0;
+        double wordCountSum = 0.0;
 
         for (Document doc : trainingDocuments) {
             FeatureVector features = doc.getFeatures();
-            if (featureIndex == 8) {
-                sum += features.getDayOfWeek8();
-            } else if (featureIndex == 9) {
-                sum += features.getWordCount9();
-            }
+            dayOfWeekSum += features.getDayOfWeek8();
+            wordCountSum += features.getWordCount9();
         }
 
-        return sum / trainingDocuments.size();
+        double dayOfWeekMean = dayOfWeekSum / trainingDocuments.size();
+        double wordCountMean = wordCountSum / trainingDocuments.size();
+
+        return new double[]{dayOfWeekMean, wordCountMean};
     }
 
-    private double calculateStandardDeviation(int featureIndex, double mean) {
-        double sumSquaredDifferences = 0.0;
+    private double[] calculateStandardDeviation(double dayOfWeekMean, double wordCountMean) {
+        double dayOfWeekSumSquaredDiff = 0.0;
+        double wordCountSumSquaredDiff = 0.0;
 
         for (Document doc : trainingDocuments) {
             FeatureVector features = doc.getFeatures();
-            double value;
+            double dayOfWeekDifference = features.getDayOfWeek8() - dayOfWeekMean;
+            double wordCountDifference = features.getWordCount9() - wordCountMean;
 
-            if (featureIndex == 8) {
-                value = features.getDayOfWeek8();
-            } else if (featureIndex == 9) {
-                value = features.getWordCount9();
-            } else {
-                throw new IllegalArgumentException("Feature index must be 8 or 9");
-            }
-
-            double difference = value - mean;
-            sumSquaredDifferences += difference * difference;
+            dayOfWeekSumSquaredDiff += dayOfWeekDifference * dayOfWeekDifference;
+            wordCountSumSquaredDiff += wordCountDifference * wordCountDifference;
         }
 
-        double variance = sumSquaredDifferences / trainingDocuments.size();
-        return Math.sqrt(variance);
-    }
-
-    private Double normalizeFeature(double value, double mean, double stdDev) {
-        if (stdDev == 0) {
-            return 0.0;
-        }
-        return (value - mean) / stdDev;
+        double dayOfWeekStdDev = Math.sqrt(dayOfWeekSumSquaredDiff / trainingDocuments.size());
+        double wordCountStdDev = Math.sqrt(wordCountSumSquaredDiff / trainingDocuments.size());
+        return new double[]{dayOfWeekStdDev, wordCountStdDev};
     }
 
     public void printClassDistribution() {
