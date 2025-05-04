@@ -29,7 +29,7 @@ public class UI {
         Set<Integer> selectedFeatures = promptForFeatures();
         DistanceMetric metric = promptForDistanceMetric();
         TextMeasure textMeasure = promptForTextMeasure();
-        runClassifier(k, splitRatio, selectedFeatures, metric, textMeasure);
+        runClassifier(k, splitRatio, selectedFeatures, metric, textMeasure, documents);
     }
 
     private int promptForK() {
@@ -181,14 +181,14 @@ public class UI {
         return textMeasure;
     }
 
-    private void runClassifier(int k, double splitRatio, Set<Integer> features,
-                               DistanceMetric metric, TextMeasure textMeasure) {
+    static void runClassifier(int k, double splitRatio, Set<Integer> features,
+                              DistanceMetric metric, TextMeasure textMeasure, List<org.example.Document> documents) {
         System.out.println("\n===== Running KNN Classifier =====");
         System.out.println("Configuration:");
         System.out.println("- k = " + k);
         System.out.println("- Train/Test split = " + splitRatio + "/" + (1 - splitRatio));
         System.out.println("- Features: " + features.stream()
-                .map(i -> featureNames[i])
+                .map(String::valueOf)
                 .collect(Collectors.joining(", ")));
         System.out.println("- Distance metric: " + metric.getClass().getSimpleName());
         System.out.println("- Text measure: " + textMeasure.getClass().getSimpleName());
@@ -197,20 +197,14 @@ public class UI {
 
         KNN classifier = new KNN(k, splitRatio, features, metric, textMeasure);
         classifier.splitDataset(documents);
+        classifier.printClassDistribution();
         classifier.normalizeNumericalFeatures();
         classifier.evaluateModel();
 
         printResults(classifier);
     }
 
-    private void printResults(KNN classifier) {
-        System.out.println("\n===== Classification Results =====");
-
-        System.out.println("\nOverall metrics:");
-        System.out.printf("Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                classifier.getAccuracy(), classifier.getPrecision(),
-                classifier.getRecall(), classifier.getF1());
-
+    static void printResults(KNN classifier) {
         System.out.println("\nPer-class metrics:");
         Set<String> categories = classifier.getTestDocuments().stream()
                 .map(Document::getTargetLabel)
@@ -218,10 +212,10 @@ public class UI {
 
         for (String category : categories) {
             System.out.printf("Class '%s': Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    category, classifier.getPrecision(category),
-                    classifier.getRecall(category), classifier.getF1(category));
-        }
+                    category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));}
 
-        System.out.println("\nClassification complete!");
+        System.out.println("Overall metrics:");
+        System.out.printf("Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
+                classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
     }
 }

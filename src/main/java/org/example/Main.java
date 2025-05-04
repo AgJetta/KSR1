@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.example.UI.runClassifier;
+
 public class Main {
     public static void main(String[] args) {
         String docDir;
@@ -52,123 +54,49 @@ public class Main {
 
         System.out.println("\n==== Experiment 1: Impact of k value ====");
         Set<Integer> someFeatures = IntStream.range(0, 9).boxed().collect(Collectors.toSet());
+        Set<Integer> firstThreeFeatures = Set.of(0, 1, 2);
+        Set<Integer> firstFourFeatures = Set.of(0, 1, 2, 3);
         for (int k : new int[]{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}) {
-            System.out.printf("Running KNN with k = %d...%n", k);
-            KNN classifier = new KNN(k, 0.65, someFeatures, euclidean, cosine);
-            classifier.splitDataset(documents);
-            classifier.normalizeNumericalFeatures();
-            classifier.evaluateModel();
-
-            System.out.println("Overall metrics:");
-            System.out.printf("k = %2d: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    k, classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
-            System.out.println("\nPer-class metrics:");
-
-            Set<String> categories = classifier.getTestDocuments().stream()
-                    .map(Document::getTargetLabel)
-                    .collect(Collectors.toSet());
-
-            for (String category : categories) {
-                System.out.printf("Class '%s': Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                        category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));
-            }
+            runClassifier(k, 0.7, firstFourFeatures, euclidean, cosine, documents);
         }
 
-        System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
-        int bestK = 8;
-        for (double ratio : new double[]{0.3, 0.5, 0.7, 0.8, 0.9}) {
-            KNN classifier = new KNN(bestK, ratio, someFeatures, euclidean, cosine);
-            classifier.splitDataset(documents);
-            classifier.normalizeNumericalFeatures();
-            classifier.evaluateModel();
-
-            System.out.printf("Train/Test ratio = %.1f/%.1f: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    ratio, 1-ratio, classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
-
-            System.out.println("\nPer-class metrics:");
-            Set<String> categories = classifier.getTestDocuments().stream()
-                    .map(Document::getTargetLabel)
-                    .collect(Collectors.toSet());
-
-            for (String category : categories) {
-                System.out.printf("Class '%s': Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                        category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));            }
-        }
-
-        System.out.println("\n==== Experiment 3: Impact of distance metric ====");
-        Map<String, DistanceMetric> metrics = new LinkedHashMap<>();
-        metrics.put("Euclidean", euclidean);
-        metrics.put("Manhattan", manhattan);
-        metrics.put("Chebyshev", chebyshev);
-
-        for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
-            KNN classifier = new KNN(bestK, 0.7, someFeatures, entry.getValue(), jaccard);
-            classifier.splitDataset(documents);
-            classifier.normalizeNumericalFeatures();
-            classifier.evaluateModel();
-
-            System.out.printf("Metric = %s: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    entry.getKey(), classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
-
-            System.out.println("\nPer-class metrics:");
-            Set<String> categories = classifier.getTestDocuments().stream()
-                    .map(Document::getTargetLabel)
-                    .collect(Collectors.toSet());
-            for (String category : categories) {
-                System.out.printf("Class '%s': Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                        category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));
-            }
-        }
-
-        System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
-        Map<String, TextMeasure> similarities = new LinkedHashMap<>();
-        similarities.put("Cosine", cosine);
-        similarities.put("Jaccard", jaccard);
-
-        for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
-            KNN classifier = new KNN(bestK, 0.7, someFeatures, euclidean, entry.getValue());
-            classifier.splitDataset(documents);
-            classifier.normalizeNumericalFeatures();
-            classifier.evaluateModel();
-
-            System.out.printf("Text Similarity = %s: Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    entry.getKey(), classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
-        }
-
-        System.out.println("\n==== Experiment 4: Impact of feature selection ====");
-
-        List<Set<Integer>> featureSubsets = new ArrayList<>();
-        featureSubsets.add(Set.of(0, 1, 2, 3, 4));
-        featureSubsets.add(Set.of(5, 6, 7, 8, 9));
-        featureSubsets.add(Set.of(0, 2, 4, 6, 8));
-        featureSubsets.add(Set.of(1, 3, 5, 7, 9));
-
-        String[] featureNames = {
-                "firstName", "organisations", "popularCountry", "firstCity", "popularTopic",
-                "currency", "author", "localisation", "dayOfWeek", "wordCount"
-        };
-
-        for (int i = 0; i < featureSubsets.size(); i++) {
-            Set<Integer> subset = featureSubsets.get(i);
-            KNN classifier = new KNN(bestK, 0.7, subset, euclidean, cosine);
-            classifier.splitDataset(documents);
-            classifier.normalizeNumericalFeatures();
-            classifier.evaluateModel();
-
-            System.out.printf("Feature subset %d (%s): Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                    i+1,
-                    subset.stream().map(idx -> featureNames[idx]).collect(Collectors.joining(", ")),
-                    classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
-
-            System.out.println("\nPer-class metrics:");
-            Set<String> categories = classifier.getTestDocuments().stream()
-                    .map(Document::getTargetLabel)
-                    .collect(Collectors.toSet());
-            for (String category : categories) {
-                System.out.printf("Class '%s': Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
-                        category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));
-
-            }
-        }
+//        System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
+//        int bestK = 3;
+//        for (double ratio : new double[]{0.3, 0.5, 0.7}) {
+//            runClassifier(bestK, ratio, firstThreeFeatures, euclidean, cosine, documents);
+//        }
+//
+//        System.out.println("\n==== Experiment 3: Impact of distance metric ====");
+//        Map<String, DistanceMetric> metrics = new LinkedHashMap<>();
+//        metrics.put("Euclidean", euclidean);
+//        metrics.put("Manhattan", manhattan);
+//        metrics.put("Chebyshev", chebyshev);
+//
+//        for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
+//            runClassifier(bestK, 0.7, firstThreeFeatures, entry.getValue(), cosine, documents);
+//        }
+//
+//        System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
+//        Map<String, TextMeasure> similarities = new LinkedHashMap<>();
+//        similarities.put("Cosine", cosine);
+//        similarities.put("Jaccard", jaccard);
+//
+//        for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
+//            runClassifier(bestK, 0.7, firstThreeFeatures, euclidean, entry.getValue(), documents);
+//        }
+//
+//        System.out.println("\n==== Experiment 4: Impact of feature selection ====");
+//
+//        List<Set<Integer>> featureSubsets = new ArrayList<>();
+//        featureSubsets.add(Set.of(0, 1, 2, 3, 4));
+//        featureSubsets.add(Set.of(5, 6, 7, 8, 9));
+//        featureSubsets.add(Set.of(0, 2, 4, 6, 8));
+//        featureSubsets.add(Set.of(1, 3, 5, 7, 9));
+//
+//        for (Set<Integer> subset : featureSubsets) {
+//            runClassifier(bestK, 0.7, subset, euclidean, cosine, documents);
+//        }
     }
+
+
 }
