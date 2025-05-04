@@ -6,18 +6,18 @@ import java.util.stream.Collectors;
 public class KNN {
 
     private final int k;
-    private double trainRatio;
-    private Set<Integer> selectedFeatureIndices;
-    private DistanceMetric distanceMetric;
-    private TextMeasure textMeasure;
+    private final double trainRatio;
+    private final Set<Integer> selectedFeatureIndices;
+    private final DistanceMetric distanceMetric;
+    private final TextMeasure textMeasure;
 
     private List<Document> allDocuments;
     private List<Document> trainingDocuments;
     private List<Document> testDocuments;
 
-    private Map<String, Integer> truePositives;
-    private Map<String, Integer> falsePositives;
-    private Map<String, Integer> falseNegatives;
+    private final Map<String, Integer> truePositives;
+    private final Map<String, Integer> falsePositives;
+    private final Map<String, Integer> falseNegatives;
     private int correctPredictions;
 
     public KNN(int k, double trainRatio, Set<Integer> selectedFeatureIndices,
@@ -219,26 +219,6 @@ public class KNN {
         }
 
         return 2 * precision * recall / (precision + recall);
-    }
-
-    public int getK() {
-        return k;
-    }
-
-    public double getTrainRatio() {
-        return trainRatio;
-    }
-
-    public Set<Integer> getSelectedFeatureIndices() {
-        return selectedFeatureIndices;
-    }
-
-    public DistanceMetric getDistanceMetric() {
-        return distanceMetric;
-    }
-
-    public List<Document> getTrainingDocuments() {
-        return trainingDocuments;
     }
 
     public List<Document> getTestDocuments() {
