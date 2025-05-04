@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class KNN {
 
-    private int k;
+    private final int k;
     private double trainRatio;
     private Set<Integer> selectedFeatureIndices;
     private DistanceMetric distanceMetric;
@@ -35,11 +35,17 @@ public class KNN {
 
     public void splitDataset(List<Document> documents) {
         this.allDocuments = new ArrayList<>(documents);
-        int trainingSize = (int) (documents.size() * trainRatio);
 
-        this.trainingDocuments = documents.subList(0, trainingSize);
-        this.testDocuments = documents.subList(trainingSize, documents.size());
+        List<Document> shuffledDocs = new ArrayList<>(documents);
+        long seed = 42L;
+        Collections.shuffle(shuffledDocs, new Random(seed));
+
+        int trainingSize = (int) (shuffledDocs.size() * trainRatio);
+
+        this.trainingDocuments = shuffledDocs.subList(0, trainingSize);
+        this.testDocuments = shuffledDocs.subList(trainingSize, shuffledDocs.size());
     }
+
 
     // Single document
     public String classify(Document document) {
@@ -67,7 +73,7 @@ public class KNN {
                 .orElse("unknown");
     }
 
-    private double calculateDistance(Document doc1, Document doc2) {
+    private Double calculateDistance(Document doc1, Document doc2) {
         return distanceMetric.calculate(doc1, doc2, textMeasure, selectedFeatureIndices);
     }
 
@@ -102,78 +108,117 @@ public class KNN {
         }
     }
 
-    public double getAccuracy() {
+    public Double getAccuracy() {
         return (double) correctPredictions / testDocuments.size();
     }
 
     // Precision for all documents: WEIGHTED
-    public double getPrecision() {
+    public Double getPrecision() {
         int totalSamples = allDocuments.size();
 
         double weightedPrecision = 0.0;
+        int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
             int samplesPerLabel = (int) allDocuments.stream()
                     .filter(doc -> doc.getTargetLabel().equals(category))
                     .count();
-            double precision = getPrecision(category);
-            weightedPrecision += (precision * samplesPerLabel) / totalSamples;
+            Double precision = getPrecision(category);
+
+            if (precision != null) {
+                weightedPrecision += (precision * samplesPerLabel) / totalSamples;
+                notNullLabelsCount++;
+            }
+        }
+
+        if (notNullLabelsCount == 0) {
+            return null;
         }
 
         return weightedPrecision;
     }
 
     // Precision for a specific label
-    public double getPrecision(String category) {
+    public Double getPrecision(String category) {
         int tp = truePositives.getOrDefault(category, 0);
         int fp = falsePositives.getOrDefault(category, 0);
 
-        return tp == 0 ? 0 : (double) tp / (tp + fp);
+        if (tp == 0 && fp == 0) {
+            return null;
+        }
+
+        return (double) tp / (tp + fp);
     }
 
     // Recall for all documents: WEIGHTED
-    public double getRecall() {
+    public Double getRecall() {
         int totalSamples = allDocuments.size();
 
         double weightedRecall = 0.0;
+        int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
             int samplesPerLabel = (int) allDocuments.stream()
                     .filter(doc -> doc.getTargetLabel().equals(category))
                     .count();
-            double recall = getRecall(category);
-            weightedRecall += (recall * samplesPerLabel) / totalSamples;
+            Double recall = getRecall(category);
+
+            if (recall != null) {
+                weightedRecall += (recall * samplesPerLabel) / totalSamples;
+                notNullLabelsCount++;
+            }
+        }
+
+        if (notNullLabelsCount == 0) {
+            return null;
         }
 
         return weightedRecall;
     }
 
     // Calculate recall for a specific label
-    public double getRecall(String category) {
+    public Double getRecall(String category) {
         int tp = truePositives.getOrDefault(category, 0);
         int fn = falseNegatives.getOrDefault(category, 0);
 
-        return tp == 0 ? 0 : (double) tp / (tp + fn);
+        if (tp == 0 && fn == 0) {
+            return null;
+        }
+
+        return (double) tp / (tp + fn);
     }
 
     // F1 score for all docs: WEIGHTED
-    public double getF1() {
+    public Double getF1() {
         double weightedF1 = 0.0;
+        int notNullLabelsCount = 0;
         for (String category : truePositives.keySet()) {
             int samplesPerLabel = (int) allDocuments.stream()
                     .filter(doc -> doc.getTargetLabel().equals(category))
                     .count();
-            double f1 = getF1(category);
-            weightedF1 += (f1 * samplesPerLabel) / allDocuments.size();
+            Double f1 = getF1(category);
+
+            if (f1 != null) {
+                weightedF1 += (f1 * samplesPerLabel) / allDocuments.size();
+                notNullLabelsCount++;
+            }
+        }
+
+        if (notNullLabelsCount == 0) {
+            return null;
         }
 
         return weightedF1;
     }
 
     // F1 score for a specific label
-    public double getF1(String category) {
-        double precision = getPrecision(category);
-        double recall = getRecall(category);
+    public Double getF1(String category) {
+        Double precision = getPrecision(category);
+        Double recall = getRecall(category);
 
-        return (precision + recall == 0) ? 0 : 2 * precision * recall / (precision + recall);
+        if (precision == null || recall == null) {
+            return null;
+        }
+
+        return 2 * precision * recall / (precision + recall);
     }
 
     public int getK() {
@@ -202,12 +247,19 @@ public class KNN {
 
     private record DocumentDistance(Document document, double distance) {}
 
+    // Calculates mean, std, applies normalization
     public void normalizeNumericalFeatures() {
         double dayOfWeekMean = calculateMean(8);
         double dayOfWeekStdDev = calculateStandardDeviation(8, dayOfWeekMean);
         double wordCountMean = calculateMean(9);
         double wordCountStdDev = calculateStandardDeviation(9, wordCountMean);
 
+        normalizeDocuments(dayOfWeekMean, dayOfWeekStdDev, wordCountMean, wordCountStdDev, trainingDocuments);
+        normalizeDocuments(dayOfWeekMean, dayOfWeekStdDev, wordCountMean, wordCountStdDev, testDocuments);
+    }
+
+    // Applies normalization
+    private void normalizeDocuments(double dayOfWeekMean, double dayOfWeekStdDev, double wordCountMean, double wordCountStdDev, List<Document> trainingDocuments) {
         for (Document doc : trainingDocuments) {
             FeatureVector features = doc.getFeatures();
             double originalDayOfWeek = features.getDayOfWeek8();
@@ -257,11 +309,25 @@ public class KNN {
         return Math.sqrt(variance);
     }
 
-    private int normalizeFeature(double value, double mean, double stdDev) {
+    private Double normalizeFeature(double value, double mean, double stdDev) {
         if (stdDev == 0) {
-            return 0;
+            return 0.0;
         }
-        double normalized = (value - mean) / stdDev;
-        return (int) Math.round(normalized);
+        return (value - mean) / stdDev;
+    }
+
+    public void printClassDistribution() {
+        Map<String, Long> trainingDist = trainingDocuments.stream()
+                .collect(Collectors.groupingBy(Document::getTargetLabel, Collectors.counting()));
+
+        Map<String, Long> testDist = testDocuments.stream()
+                .collect(Collectors.groupingBy(Document::getTargetLabel, Collectors.counting()));
+
+        Map<String, Long> totalDist = allDocuments.stream()
+                .collect(Collectors.groupingBy(Document::getTargetLabel, Collectors.counting()));
+
+        System.out.println("Total distribution: " + totalDist);
+        System.out.println("Training distribution: " + trainingDist);
+        System.out.println("Test distribution: " + testDist);
     }
 }
