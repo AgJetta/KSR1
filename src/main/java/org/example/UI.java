@@ -173,6 +173,11 @@ public class UI {
                     validInput = true;
                     System.out.println("Selected: Jaccard Similarity");
                     break;
+                case "3":
+                    textMeasure = new LevenshteinTextMeasure();
+                    validInput = true;
+                    System.out.println("Selected: Levenshtein Similarity");
+                    break;
                 default:
                     System.out.println("Invalid choice. Please enter a number from 1 to 2.");
             }
