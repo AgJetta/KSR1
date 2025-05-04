@@ -51,6 +51,7 @@ public class Main {
         DistanceMetric chebyshev = new ChebyshevDistance();
         TextMeasure cosine = new CosineTextMeasure();
         TextMeasure jaccard = new JaccardTextMeasure();
+        TextMeasure levenshtein = new LevenshteinTextMeasure();
 
         System.out.println("\n==== Experiment 1: Impact of k value ====");
         Set<Integer> someFeatures = IntStream.range(0, 9).boxed().collect(Collectors.toSet());
