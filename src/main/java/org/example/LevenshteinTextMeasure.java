@@ -23,7 +23,6 @@ public class LevenshteinTextMeasure implements TextMeasure {
 
         int distance = levenshtein(str1, str2);
         int maxLen = Math.max(str1.length(), str2.length());
-        if (maxLen == 0) return 1.0;
 
         return 1.0 - ((double) distance / maxLen);
     }

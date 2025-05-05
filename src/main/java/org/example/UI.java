@@ -157,6 +157,7 @@ public class UI {
         System.out.println("\nAvailable text similarity measures:");
         System.out.println("1: Cosine Similarity");
         System.out.println("2: Jaccard Similarity");
+        System.out.println("3: Levenshtein Similarity");
 
         while (!validInput) {
             System.out.print("Choose a text similarity measure (1-2): ");

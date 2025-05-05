@@ -8,7 +8,7 @@ public class EuclideanDistance implements DistanceMetric {
     public double aggregate(List<Double> distances) {
         double sum = 0.0;
         for (double d : distances) {
-            sum += d * d;
+            sum = Math.fma(d, d, sum);
         }
         return Math.sqrt(sum);
     }

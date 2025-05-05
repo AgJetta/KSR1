@@ -49,7 +49,6 @@ public class Main {
         DistanceMetric euclidean = new EuclideanDistance();
         DistanceMetric manhattan = new ManhattanDistance();
         DistanceMetric chebyshev = new ChebyshevDistance();
-        TextMeasure cosine = new CosineTextMeasure();
         TextMeasure jaccard = new JaccardTextMeasure();
         TextMeasure levenshtein = new LevenshteinTextMeasure();
 
@@ -58,45 +57,45 @@ public class Main {
         Set<Integer> firstThreeFeatures = Set.of(0, 1, 2);
         Set<Integer> firstFourFeatures = Set.of(0, 1, 2, 3);
         for (int k : new int[]{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}) {
-            runClassifier(k, 0.7, firstFourFeatures, euclidean, cosine, documents);
+            runClassifier(k, 0.7, firstFourFeatures, euclidean, levenshtein, documents);
         }
 
-//        System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
-//        int bestK = 3;
-//        for (double ratio : new double[]{0.3, 0.5, 0.7}) {
-//            runClassifier(bestK, ratio, firstThreeFeatures, euclidean, cosine, documents);
-//        }
-//
-//        System.out.println("\n==== Experiment 3: Impact of distance metric ====");
-//        Map<String, DistanceMetric> metrics = new LinkedHashMap<>();
-//        metrics.put("Euclidean", euclidean);
-//        metrics.put("Manhattan", manhattan);
-//        metrics.put("Chebyshev", chebyshev);
-//
-//        for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
-//            runClassifier(bestK, 0.7, firstThreeFeatures, entry.getValue(), cosine, documents);
-//        }
-//
-//        System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
-//        Map<String, TextMeasure> similarities = new LinkedHashMap<>();
-//        similarities.put("Cosine", cosine);
-//        similarities.put("Jaccard", jaccard);
-//
-//        for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
-//            runClassifier(bestK, 0.7, firstThreeFeatures, euclidean, entry.getValue(), documents);
-//        }
-//
-//        System.out.println("\n==== Experiment 4: Impact of feature selection ====");
-//
-//        List<Set<Integer>> featureSubsets = new ArrayList<>();
-//        featureSubsets.add(Set.of(0, 1, 2, 3, 4));
-//        featureSubsets.add(Set.of(5, 6, 7, 8, 9));
-//        featureSubsets.add(Set.of(0, 2, 4, 6, 8));
-//        featureSubsets.add(Set.of(1, 3, 5, 7, 9));
-//
-//        for (Set<Integer> subset : featureSubsets) {
-//            runClassifier(bestK, 0.7, subset, euclidean, cosine, documents);
-//        }
+        System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
+        int bestK = 3;
+        for (double ratio : new double[]{0.3, 0.5, 0.7}) {
+            runClassifier(bestK, ratio, firstThreeFeatures, euclidean, levenshtein, documents);
+        }
+
+        System.out.println("\n==== Experiment 3: Impact of distance metric ====");
+        Map<String, DistanceMetric> metrics = new LinkedHashMap<>();
+        metrics.put("Euclidean", euclidean);
+        metrics.put("Manhattan", manhattan);
+        metrics.put("Chebyshev", chebyshev);
+
+        for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
+            runClassifier(bestK, 0.7, firstThreeFeatures, entry.getValue(), levenshtein, documents);
+        }
+
+        System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
+        Map<String, TextMeasure> similarities = new LinkedHashMap<>();
+        similarities.put("Levenshtein", levenshtein);
+        similarities.put("Jaccard", jaccard);
+
+        for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
+            runClassifier(bestK, 0.7, firstThreeFeatures, euclidean, entry.getValue(), documents);
+        }
+
+        System.out.println("\n==== Experiment 4: Impact of feature selection ====");
+
+        List<Set<Integer>> featureSubsets = new ArrayList<>();
+        featureSubsets.add(Set.of(0, 1, 2, 3, 4));
+        featureSubsets.add(Set.of(5, 6, 7, 8, 9));
+        featureSubsets.add(Set.of(0, 2, 4, 6, 8));
+        featureSubsets.add(Set.of(1, 3, 5, 7, 9));
+
+        for (Set<Integer> subset : featureSubsets) {
+            runClassifier(bestK, 0.7, subset, euclidean, levenshtein, documents);
+        }
     }
 
 
