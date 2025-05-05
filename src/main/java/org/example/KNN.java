@@ -101,6 +101,7 @@ public class KNN {
         for (Document testDoc : testDocuments) {
             String actualClass = testDoc.getTargetLabel();
             String predictedClass = classify(testDoc);
+            testDoc.setPredictedLabel(predictedClass);
 
             if (predictedClass.equals(actualClass)) {
                 correctPredictions++;

@@ -8,6 +8,8 @@ public class Document{
     private FeatureVector features;
     private String targetLabel;
 
+    private String predictedLabel;
+
     public Document(String documentId, FeatureVector features, String targetLabel) {
         this.documentId = documentId;
         this.features = features;
@@ -24,5 +26,13 @@ public class Document{
 
     public String getTargetLabel() {
         return targetLabel;
+    }
+
+    public String getPredictedLabel() {
+        return predictedLabel;
+    }
+
+    public void setPredictedLabel(String predictedLabel) {
+        this.predictedLabel = predictedLabel;
     }
 }

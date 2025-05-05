@@ -187,9 +187,9 @@ public class UI {
         return textMeasure;
     }
 
-    static void runClassifier(int k, double splitRatio, Set<Integer> features,
+    static KNN runClassifier(int k, double splitRatio, Set<Integer> features,
                               DistanceMetric metric, TextMeasure textMeasure, List<org.example.Document> documents) {
-        System.out.println("\n===== Running KNN Classifier =====");
+        System.out.println("===== Running KNN Classifier ==============================");
         System.out.println("Configuration:");
         System.out.println("- k = " + k);
         System.out.println("- Train/Test split = " + splitRatio + "/" + (1 - splitRatio));
@@ -199,15 +199,19 @@ public class UI {
         System.out.println("- Distance metric: " + metric.getClass().getSimpleName());
         System.out.println("- Text measure: " + textMeasure.getClass().getSimpleName());
 
-        System.out.println("\nProcessing...");
+        System.out.println("\n");
 
         KNN classifier = new KNN(k, splitRatio, features, metric, textMeasure);
         classifier.splitDataset(documents);
         classifier.normalizeNumericalFeatures();
         classifier.evaluateModel();
 
-        printResults(classifier);
+//        printResults(classifier);
+        printLatexResults(classifier);
+
+        return classifier;
     }
+
 
     static void printResults(KNN classifier) {
         System.out.println("\nPer-class metrics:");
@@ -222,5 +226,64 @@ public class UI {
         System.out.println("Overall metrics:");
         System.out.printf("Accuracy = %.4f, Precision = %.4f, Recall = %.4f, F1 = %.4f%n",
                 classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
+    }
+
+    static void printLatexResults(KNN classifier) {
+        Set<String> categories = classifier.getTestDocuments().stream()
+                .map(Document::getTargetLabel)
+                .collect(Collectors.toSet());
+
+        System.out.println("\\begin{table}[H]\n" +
+                "\\centering\n" +
+                "\\caption{Test}\n" +
+                "\\begin{tabular}{|c|c|c|c|c|}\n" +
+                "\\hline\n" +
+                "\\textbf{Kraj/Metryka} & \\textbf{Accuracy} & \\textbf{Precision} & \\textbf{Recall} & \\textbf{F1}\\\\\n" +
+                "\\hline");
+
+        for (String category : categories) {
+            System.out.printf("%s & - & %.4f & %.4f & %.4f\\\\\n",
+                    category, classifier.getPrecision(category), classifier.getRecall(category), classifier.getF1(category));
+            System.out.println("\\hline");
+        }
+
+        System.out.printf("\\textbf{Średnia ważona} & %.4f & %.4f & %.4f & %.4f\\\\\n",
+                classifier.getAccuracy(), classifier.getPrecision(), classifier.getRecall(), classifier.getF1());
+
+        System.out.println("\\hline");
+        System.out.println("\\end{tabular}\n" +
+                "\\end{table}" + "\n");
+    }
+
+    public static void createAndPrintConfusionMatrix(List<String> actualLabels, List<String> predictedLabels) {
+        // Create
+        Map<String, Map<String, Integer>> confusionMatrix = new HashMap<>();
+        for (int i = 0; i < actualLabels.size(); i++) {
+            String actual = actualLabels.get(i);
+            String predicted = predictedLabels.get(i);
+
+            confusionMatrix.putIfAbsent(actual, new HashMap<>());
+            confusionMatrix.get(actual).put(predicted, confusionMatrix.get(actual).getOrDefault(predicted, 0) + 1);
+        }
+
+        // Print
+        System.out.println("\nConfusion Matrix:");
+        Set<String> allLabels = new HashSet<>(actualLabels);
+        allLabels.addAll(predictedLabels);
+        List<String> sortedLabels = new ArrayList<>(allLabels);
+        Collections.sort(sortedLabels);
+        System.out.print("\t");
+        for (String label : sortedLabels) {
+            System.out.print(label + "\t");
+        }
+        System.out.println();
+        for (String actual : sortedLabels) {
+            System.out.print(actual + "\t");
+            for (String predicted : sortedLabels) {
+                int count = confusionMatrix.getOrDefault(actual, new HashMap<>()).getOrDefault(predicted, 0);
+                System.out.print(count + "\t");
+            }
+            System.out.println();
+        }
     }
 }

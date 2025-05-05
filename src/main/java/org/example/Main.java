@@ -1,9 +1,8 @@
 package org.example;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import static org.example.UI.createAndPrintConfusionMatrix;
 import static org.example.UI.runClassifier;
 
 public class Main {
@@ -46,24 +45,25 @@ public class Main {
             return;
         }
 
+        int bestK = 3;
+        double bestRatio = 0.7;
+
         DistanceMetric euclidean = new EuclideanDistance();
         DistanceMetric manhattan = new ManhattanDistance();
         DistanceMetric chebyshev = new ChebyshevDistance();
         TextMeasure jaccard = new JaccardTextMeasure();
         TextMeasure levenshtein = new LevenshteinTextMeasure();
 
+        Set<Integer> allFeatures = Set.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
         System.out.println("\n==== Experiment 1: Impact of k value ====");
-        Set<Integer> someFeatures = IntStream.range(0, 9).boxed().collect(Collectors.toSet());
-        Set<Integer> firstThreeFeatures = Set.of(0, 1, 2);
-        Set<Integer> firstFourFeatures = Set.of(0, 1, 2, 3);
-        for (int k : new int[]{1, 3, 5, 7, 9, 11, 13, 15, 17, 19}) {
-            runClassifier(k, 0.7, firstFourFeatures, euclidean, levenshtein, documents);
+        for (int k : new int[]{1, 3, 5, 10, 25, 75, 100, 150, 250, 400}) {
+            runClassifier(k, bestRatio, allFeatures, euclidean, levenshtein, documents);
         }
 
         System.out.println("\n==== Experiment 2: Impact of train/test ratio ====");
-        int bestK = 3;
-        for (double ratio : new double[]{0.3, 0.5, 0.7}) {
-            runClassifier(bestK, ratio, firstThreeFeatures, euclidean, levenshtein, documents);
+        for (double ratio : new double[]{0.1, 0.3, 0.5, 0.7, 0.9}) {
+            runClassifier(bestK, ratio, allFeatures, euclidean, levenshtein, documents);
         }
 
         System.out.println("\n==== Experiment 3: Impact of distance metric ====");
@@ -73,7 +73,7 @@ public class Main {
         metrics.put("Chebyshev", chebyshev);
 
         for (Map.Entry<String, DistanceMetric> entry : metrics.entrySet()) {
-            runClassifier(bestK, 0.7, firstThreeFeatures, entry.getValue(), levenshtein, documents);
+            runClassifier(bestK, bestRatio, allFeatures, entry.getValue(), levenshtein, documents);
         }
 
         System.out.println("\n==== Experiment 3b: Impact of text similarity measures ====");
@@ -82,21 +82,34 @@ public class Main {
         similarities.put("Jaccard", jaccard);
 
         for (Map.Entry<String, TextMeasure> entry : similarities.entrySet()) {
-            runClassifier(bestK, 0.7, firstThreeFeatures, euclidean, entry.getValue(), documents);
+            runClassifier(bestK, bestRatio, allFeatures, euclidean, entry.getValue(), documents);
         }
 
         System.out.println("\n==== Experiment 4: Impact of feature selection ====");
 
         List<Set<Integer>> featureSubsets = new ArrayList<>();
+        featureSubsets.add(Set.of(0, 1));
         featureSubsets.add(Set.of(0, 1, 2, 3, 4));
+        featureSubsets.add(Set.of(5, 6));
         featureSubsets.add(Set.of(5, 6, 7, 8, 9));
-        featureSubsets.add(Set.of(0, 2, 4, 6, 8));
-        featureSubsets.add(Set.of(1, 3, 5, 7, 9));
 
         for (Set<Integer> subset : featureSubsets) {
-            runClassifier(bestK, 0.7, subset, euclidean, levenshtein, documents);
+            runClassifier(bestK, bestRatio, subset, manhattan, levenshtein, documents);
         }
-    }
 
+        System.out.println("\n==== Experiment 5: Perfect configuration ====");
+        KNN classifier = runClassifier(bestK, bestRatio, Set.of(5, 6, 7, 8, 9), manhattan, levenshtein, documents);
+
+        List<String> actualLabels = classifier.getTestDocuments()
+                .stream()
+                .map(org.example.Document::getTargetLabel)
+                .toList();
+        List<String> predictedLabels = classifier.getTestDocuments()
+                .stream()
+                .map(org.example.Document::getPredictedLabel)
+                .toList();
+
+        createAndPrintConfusionMatrix(actualLabels, predictedLabels);
+    }
 
 }
